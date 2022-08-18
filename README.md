@@ -1,6 +1,6 @@
 - 👋 Hi, I’m @hukiry
 - 👀 I’m interested in Unity game or Other code
-- 🌱 I’m currently learning some Program language of C#,shader,lua,js,php,html,css,c,c++,swift
+- 🌱 I’m currently learning some Program language of C#,shader,lua,js,php,html,css,c,c++,swift,OC
 - 💞️ I’m looking to collaborate on game
 - 📫 How to reach me on github
 
