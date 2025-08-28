@@ -3,7 +3,7 @@
 - 🌱 I’m currently learning some Program language of C#,shader,lua,js,php,html,css,c,c++,swift,OC
 - 💞️ I’m looking to collaborate on game
 - 📫 How to reach me on github
-- > update plugins 1.0
+- > Deutsch leren
 
 <!---
 hukiry/hukiry is a ✨ special ✨ repository because its `README.md` (this file) appears on your GitHub profile.
