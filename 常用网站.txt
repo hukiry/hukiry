@@ -1,0 +1,306 @@
+	
+IT技术问答
+	在线文档手册：
+	https://devdocs.io/
+
+	在线Godot中文手册：
+	https://www.bookstack.cn/read/godot-4.2-zh
+	https://devdocs.io/
+
+	window API查询
+	http://www.pinvoke.net/search.aspx?search=wifi&namespace=[All]
+
+	codeproject程序问题查询
+	https://www.codeproject.com/Articles/5307207/Shader-Optimization-with-the-Mali-Offline-Compiler
+
+	stackoverflow：IT技术问答
+	https://stackoverflow.com/
+
+	github：开源代码查询
+	https://github.com/
+
+	LeetCode 代码练习
+	https://leetcode.com/
+
+	lintcode 代码练习
+	https://www.lintcode.com/
+
+	freecodecamp Web代码练习
+	https://www.freecodecamp.org/
+
+	51博客网：程序问题查询
+	https://blog.51cto.com/
+
+	简书：程序问题查询
+	https://www.jianshu.com/p/7d41d05a1d9f
+
+	雨松 Unity：程序问题文档
+	https://www.xuanyusong.com/archives/2734
+
+	所有网站集合
+	https://www.bidianer.com/discover/tags
+
+程序教程网址
+
+	免费视频学习网站：面向图形软件
+	https://doyoudo.com/free
+
+	自学网教程：偏向IT专业
+	https://www.51zxw.net/
+
+	Unity Flipbook shader教程
+	https://docs.unity3d.com/Packages/com.unity.shadergraph@7.1/manual/Flipbook-Node.html
+
+	shader GL图形学教程
+	https://learnopengl-cn.github.io/
+
+	shader 图形学中文入门教程
+	https://thebookofshaders.com/07/?lan=ch
+
+	shader图形学 API测试
+	https://graphtoy.com/
+
+	shader 高级
+	http://shadertoy.com/
+
+	shell语法
+	https://www.runoob.com/linux/linux-shell-variable.html
+
+	书栈网
+	https://www.bookstack.cn/
+
+	Web手册网
+	https://developer.mozilla.org/zh-CN/docs/Web
+	
+	w3school教程网
+	https://www.w3school.com.cn/js/js_intro.asp
+
+	Swift手册
+	https://swiftgg.gitbook.io/swift/swift-jiao-cheng
+
+	Swift离线手册
+	https://github.com/SwiftGGTeam/the-swift-programming-language-in-chinese
+
+ 	可视化编程
+ 	https://www.ivx.cn/
+
+	服务器erlang
+ 	https://github.com/erlang
+ 	https://www.w3cschool.cn/erlang/mizd1p60.html
+
+ 	erlang 教程
+ 	http://www.vue5.com/erlang/erlang_databases.html
+
+软件和插件下载地址
+	css 背景动画
+	https://www.bootstrapmb.com/chajian/canvas
+
+	gradle 下载地址
+	https://gradle.org/releases/?#6.1.1
+
+	Untiy 软件下载地址
+	https://github.com/AlianBlank/download.unity.com
+	https://www.nounitycn.top/
+
+	Untiy AssetStudio破解工具
+	https://github.com/Perfare
+
+	Unity Il2CppDumper反编译工具
+	https://github.com/Perfare/Il2CppDumper
+
+	ILSpy dll反编译工具
+	https://github.com/icsharpcode/ILSpy
+
+	dnSpy dll反编译工具
+	https://github.com/dnSpy/dnSpy
+
+	UtinyRipper 资源反编译
+	https://github.com/mafaca/UtinyRipper
+
+	QT软件工具
+	https://download.qt.io/archive/qt/
+		可下载最新版本qt-opensource-windows-x86-5.14.2.exe
+
+	UnityAndroidIl2cpp 热更工程 
+	https://github.com/noodle1983/UnityAndroidIl2cppPatchDemo
+
+	Unity WebGL插件
+	https://github.com/wechat-miniprogram/minigame-unity-webgl-transform
+
+	IDA 破解工具 下载地址
+	https://hex-rays.com/ida-free/#download
+
+	OllyDbg 下载地址
+	http://www.ollydbg.de/
+	
+	7-zip压缩工具
+	https://www.7-zip.org/
+
+	开源软件
+	https://opensource.builders/
+	
+	apkTool 下载地址
+	https://ibotpeaches.github.io/Apktool/install/
+
+	逆向工具/反编译工具 集合
+	https://blog.51cto.com/u_15049775/3711629
+
+	UnityWebSocket 插件
+	客户端：https://github.com/psygames/UnityWebSocket/releases/
+	服务端：https://github.com/sta/websocket-sharp
+
+	Docker Desktop
+	https://desktop.docker.com/win/main/amd64/
+	参考：https://zhuanlan.zhihu.com/p/411618091
+	Nginx 
+	https://docs.microsoft.com/zh-cn/troubleshoot/developer/webapps/aspnetcore/practice-troubleshoot-linux/2-2-install-nginx-configure-it-reverse-proxy
+
+	VS卸载工具
+	https://github.com/Microsoft/VisualStudioUninstaller/releases
+
+	系统下载
+	https://hellowindows.cn/
+	https://www.xitongku.com/
+	https://msdn.sjjzm.com/win10.html
+
+	微软工具下载
+	https://msdn.itellyou.cn/
+
+程序在线工具
+	在线json格式化
+	https://www.sojson.com/
+	https://www.toolhelper.cn/JSON/JSONFormat
+
+	在线时间搓
+	https://tool.lu/timestamp/
+	二维码生成工具
+	https://tool.lu/qrcode/custom.html
+
+	在线压缩
+	https://zh.recompressor.com/
+
+	在线工具下载
+	http://windows.dailydownloaded.com/zh/developer-tools/database-software/
+
+
+	在线网络检查
+	https://ping.chinaz.com/dl.google.com
+
+	在线代码编程
+	https://www.dooccn.com/lua/
+
+	在线正则表达式
+	https://c.runoob.com/front-end/854/
+
+	wss网络检测
+		// 检查中间证书
+		https://www.myssl.cn/tools/check-server-cert.html
+
+		// https深度检查
+		https://www.ssllabs.com/ssltest/analyze.html
+		https://myssl.com/ssl.html
+
+	在线google翻译
+	https://translate.google.cn/
+
+	在线转换工具：csv2json
+	https://csvjson.com/csv2json
+
+Steam平台游戏
+	https://store.steampowered.com/labs/
+
+
+程序帮助文档	
+	UWA优化
+	https://www.uwa4d.com/
+
+	xcode 帮助文档
+	https://developer.apple.com/cn/documentation/xcode/
+
+	facebook sdk
+	https://developers.facebook.com/docs/facebook-login/ios
+
+	sdk文档集成：
+	https://docs-im.easemob.com/start/300iosclientintegration/20iossdkimport
+
+	汇编破解：
+	http://t.zoukankan.com/lcchuguo-p-4569633.html
+
+	DoTween
+	http://www.noisecrime.com/unity/demos/EasingLibraryVisualisationWebglDemo/index.html
+
+	Photoshop API
+	https://kihlh.github.io/uxp-photoshop-zh-cn/ps_reference/
+	
+	android开发
+	https://developer.android.google.cn/about/versions/12
+
+	
+电影和杂项
+	购书平台：孔夫子旧书网，多抓鱼，咸鱼，转转，旧书街
+
+	歌谱查找网址0
+	http://www.qupu123.com
+
+	歌曲免费下载
+	https://skymuz.org/
+	https://www.gequbao.com/
+
+	书本搜索引擎0
+	https://www.jiumodiary.com/
+
+	寻剧吧：7月1号
+		http://yxdmtv.com/tv/ 
+		https://www.duboku.tv/
+		https://www.aimoona.com/
+		德语：https://xiaoxintv.cc/
+
+	小说资源站：
+		https://wanyueshuwu.com/
+	动漫片
+		喝茶影院 https://aidingmao.com/
+		TN动漫 https://www.ntdm8.com/
+		萌翻：https://www.moefan.cc/
+		https://www.nyafun.org/
+	动漫入口
+		https://dongmandaohang.sodanav.com/
+
+
+音效素材网：
+	http://www.yisell.com/
+	http://sc.chinaz.com/yinxiao/
+	
+懒人图库
+	http://www.lanrentuku.com/psd/wangye/
+
+Nes游戏在线
+	https://www.yikm.net/
+
+美术AI
+ 	https://www.scenario.gg/
+ 	https://discord.com/invite/midjourney
+
+游戏排行榜：
+	https://www.qimai.cn/rank
+
+VPN包下载地址
+	https://d.serctl.com/
+	https://github.com/azhanlang/shadowrocket
+	
+Apk 游戏包下载：
+	http://www.qqtf.com/
+	https://shouyou.3dmgame.com/
+
+AI程序
+	https://chat.openai.com/chat
+	https://openai.com/gpt-5/
+
+函数公式
+	https://www.desmos.com/calculator
+vpn(一元机场) 地址：
+	https://xn--4gq62f52gdss.com/#/login
+Google账号购买
+	https://gmailbuying.com/
+nicecloud
+	https://nicecloud.co/login
+
