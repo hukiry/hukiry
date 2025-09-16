@@ -1,0 +1,75 @@
+iOS权限部分
+	电视供应商权限
+		<key>NSVideoSubscriberAccountUsageDescription</key>
+		<string>My description about why I need this capability</string>
+	访问音乐
+		<key>kTCCServiceMediaLibrary</key>
+		<string>My description about why I need this capability</string>
+	苹果音乐：
+		<key>NSAppleMusicUsageDescription</key>
+		<string>My description about why I need this capability</string>
+	蓝牙：
+		<key>NSBluetoothPeripheralUsageDescription</key>
+		<string>My description about why I need this capability</string>
+	日历：
+		<key>NSCalendarsUsageDescription</key>
+		<string>My description about why I need this capability</string>
+	相机：
+		<key>NSCameraUsageDescription</key>
+		<string>My description about why I need this capability</string>
+	联系人：
+		<key>NSContactsUsageDescription</key>
+		<string>My description about why I need this capability</string>
+	人脸识别：
+		<key>NSFaceIDUsageDescription</key>
+		<string>My description about why I need this capability</string>
+	健康分享：
+		<key>NSHealthShareUsageDescription</key>
+		<string>My description about why I need this capability</string>
+	健康更新：
+		<key>NSHealthUpdateUsageDescription</key>
+		<string>My description about why I need this capability</string>
+	家庭套件：
+		<key>NSHomeKitUsageDescription</key>
+		<string>My description about why I need this capability</string>
+	地点：
+		<key>NSLocationUsageDescription</key>
+		<string>My description about why I need this capability</string>
+	位置（始终）：
+		<key>NSLocationAlwaysUsageDescription</key>
+		<string>My description about why I need this capability</string>
+	位置（使用时）：
+		<key>NSLocationWhenInUseUsageDescription</key>
+		<string>My description about why I need this capability</string>
+	位置（使用时始终访问）：	
+		<key>NSLocationAlwaysAndWhenInUseUsageDescription</key>
+		<string>My description about why I need this capability</string>
+	麦克风：
+		<key>NSMicrophoneUsageDescription</key>
+		<string>My description about why I need this capability</string>
+	运动（加速度计）：
+		<key>NSMotionUsageDescription</key>
+		<string>My description about why I need this capability</string>
+	NFC（近场通信）：
+		<key>NFCReaderUsageDescription</key>
+		<string>My description about why I need this capability</string>
+	照片库：
+		<key>NSPhotoLibraryUsageDescription</key>
+		<string>My description about why I need this capability</string>
+	照片库（只写访问）：
+		<key>NSPhotoLibraryAddUsageDescription</key>
+		<string>My description about why I need this capability</string>
+	提醒：
+		<key>NSRemindersUsageDescription</key>
+		<string>My description about why I need this capability</string>
+	Siri：
+		<key>NSSiriUsageDescription</key>
+		<string>My description about why I need this capability</string>
+	语音识别：
+		<key>NSSpeechRecognitionUsageDescription</key>
+		<string>My description about why I need this capability</string>
+
+[[UIApplication sharedApplication] openURL:[NSURL URLWithString:]]
+打开Mail：@"mailto:frank@wwdcdemo.example.com"
+打开电话 @"tel:10086”
+打开SMS @"sms:10086”

@@ -1,0 +1,844 @@
+
+1,iOS 推送通知
+	//如果用户关闭了接收通知功能，该方法可以跳转到APP设置页面进行修改
+	- (void)GoToAppSystemSetting {
+	    dispatch_async(dispatch_get_main_queue(), ^{
+	        UIApplication *application = [UIApplication sharedApplication];
+	        NSURL *url = [NSURL URLWithString:UIApplicationOpenSettingsURLString];
+	        if ([application canOpenURL:url]) {
+	            if (@available(iOS 10.0, *)) {
+	                if ([application respondsToSelector:@selector(openURL:options:completionHandler:)]) {
+	                    [application openURL:url options:@{} completionHandler:nil];
+	                }
+	            }else {
+	                [application openURL:url];
+	            }
+	        }
+	    });
+	}
+
+	//判断用户是否允许接收通知
+	- (void)CheckUserNotificationEnable{ 
+	    if (@available(iOS 10.0, *)) {
+	        UNUserNotificationCenter *center = [UNUserNotificationCenter currentNotificationCenter];
+	        [center getNotificationSettingsWithCompletionHandler:^(UNNotificationSettings * _Nonnull settings) {
+	            if (settings.notificationCenterSetting == UNNotificationSettingEnabled) {
+	                NSLog(@"打开了通知");
+	                if ([PlatformSDKManager Instance].sdkHandler.CustomEvent)
+	                {
+	                    [PlatformSDKManager Instance].sdkHandler.CustomEvent("Callback_CheckNotifyEnable:true");
+	                }
+	            }else {
+	                NSLog(@"关闭了通知");
+	                dispatch_sync(dispatch_get_main_queue(), ^{
+	                    //刷新UI的代码放到主线程执行
+	                    [self handleTips];
+	                });
+	            }
+	        }];
+	    }else {
+	        if ([[UIApplication sharedApplication] currentUserNotificationSettings].types == UIUserNotificationTypeNone){
+	            NSLog(@"关闭了通知");
+	            dispatch_sync(dispatch_get_main_queue(), ^{
+	                [self handleTips];
+	            });
+	        }else {
+	            NSLog(@"打开了通知");
+	        }
+	    }
+	}
+
+2,iOS 手电筒开启和关闭
+	typedef NS_ENUM(NSInteger, AVCaptureTorchMode) {
+	    AVCaptureTorchModeOff  = 0,
+	    AVCaptureTorchModeOn   = 1,
+	    AVCaptureTorchModeAuto = 2,
+	} API_AVAILABLE(macos(10.7), ios(4.0)) __WATCHOS_PROHIBITED __TVOS_PROHIBITED;
+
+	//开启+关闭🔦
+	-(void)FlashlightON{
+	    AVCaptureDevice *device =[AVCaptureDevice defaultDeviceWithMediaType:AVMediaTypeVideo];
+	    //修改前必须先锁定
+	    [device lockForConfiguration:nil];
+	    //必须判定是否有闪光灯，否则如果没有闪光灯会崩溃
+	    if([device hasFlash]) {
+	        if(device.torchMode==AVCaptureFlashModeOff) {
+	            device.torchMode=AVCaptureTorchModeOn;
+	        }else if(device.torchMode==AVCaptureFlashModeOn) {
+	            device.torchMode=AVCaptureTorchModeOff;
+	        }
+	    }
+	    [device unlockForConfiguration];
+	}
+
+3,iOS 分享功能
+	-（void）shareToSocial{
+		UIActivityViewController *activityVC = [[UIActivityViewController alloc]initWithActivityItems:@[@"图片UIImage",@"内容NSString",@"分享链接NSURL"] applicationActivities:nil];
+	    activityVC.definesPresentationContext = YES;
+	    //不出现在活动项目
+	    //activityVC.excludedActivityTypes = @[UIActivityTypePrint, UIActivityTypeCopyToPasteboard,UIActivityTypeAssignToContact,UIActivityTypeSaveToCameraRoll];
+	    [self presentViewController:activityVC animated:YES completion:nil];
+	    //分享之后的回调
+	    __weak typeof(activityVC) weekActivity = activityVC;
+	    activityVC.completionWithItemsHandler = ^(UIActivityType  _Nullable activityType, BOOL completed, NSArray * _Nullable returnedItems, NSError * _Nullable activityError) {
+	        
+	        if (completionBlock) {
+	            completionBlock(completed, activityError);
+	            
+	            [weekActivity dismissViewControllerAnimated:YES completion:nil];
+	        }
+	        
+	        if (completed) {
+	            NSLog(@"completed");
+	            //分享 成功
+	        } else {
+	            NSLog(@"失败");
+	            //分享 取消
+	        }
+	    };
+	}
+
+4,截屏功能
+	/// 高质量截屏
+	#pragma mark - 处理截屏
+	- (UIImage *)handlerScreenshot {
+	    UIWindow *window = [UIApplication sharedApplication].keyWindow;
+	//    UIGraphicsBeginImageContext(window.frame.size); /// 这个方式获取的图片清晰度很低
+	    UIGraphicsBeginImageContextWithOptions(window.bounds.size, YES, 0.0);
+	    [window.layer renderInContext:UIGraphicsGetCurrentContext()];
+	    UIImage *screenshot = UIGraphicsGetImageFromCurrentImageContext();
+	    UIGraphicsEndImageContext();
+	    return screenshot;
+	}
+
+5,开启手机振动：
+	[[UIApplication sharedApplication] setApplicationSupportsShakeToEdit:NO];
+
+6,监听截屏和录屏：
+	-(void)viewDidLoad {
+	    [super viewDidLoad];
+	    self.view.backgroundColor =[UIColor whiteColor];
+	    [self setSubView];
+	    //增加监听->监听截图事件
+	    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(handleTips) name:UIApplicationUserDidTakeScreenshotNotification object:nil];
+	}
+
+	//当用户截屏了 怎么办 目前来说 只能进行提示。
+	-(void)handleTips {
+	    UIAlertController * alertVc =[UIAlertController alertControllerWithTitle:@"信息提示" message:@"为保证用户名,密码安全,请不要截屏或录屏!" preferredStyle:UIAlertControllerStyleAlert];
+	    UIAlertAction * knowAction =[UIAlertAction actionWithTitle:@"知道了" style:UIAlertActionStyleDefault handler:nil];
+	    [alertVc addAction:knowAction];
+	    [self presentViewController:alertVc animated:YES completion:nil];
+	}
+
+	-(void)dealloc {
+	    [[NSNotificationCenter defaultCenter] removeObserver:self name:UIApplicationUserDidTakeScreenshotNotification object:nil];
+	}
+
+
+	-(void)viewWillAppear:(BOOL)animated {
+	    [super viewWillAppear:animated];
+	    //监测当前设备是否处于录屏状态
+	    UIScreen * sc = [UIScreen mainScreen];
+	    if (sc.isCaptured) {
+	        NSLog(@"正在录制-----%d",sc.isCaptured);
+	        [self handleTips];
+	    }
+	    //ios11之后才可以录屏
+	    [[NSNotificationCenter defaultCenter]addObserver:self selector:@selector(handleTips) name:UIScreenCapturedDidChangeNotification  object:nil];
+	}
+
+	-(void)dealloc {
+	       [[NSNotificationCenter defaultCenter] removeObserver:self name:UIScreenCapturedDidChangeNotification object:nil];
+	}
+
+7,iOS 获取设备名称：
+	/// 获取当前App的基本信息字典
+	NSDictionary *infoDictionary = [[NSBundle mainBundle] infoDictionary];
+	//app名称
+	NSString *app_Name = [infoDictionary objectForKey:@"CFBundleDisplayName"];
+	// app版本
+	NSString *app_Version = [infoDictionary objectForKey:@"CFBundleShortVersionString"];
+	 // app build版本
+	NSString *app_build = [infoDictionary objectForKey:@"CFBundleVersion"];
+	//手机别名： 用户定义的名称
+	NSString* userPhoneName = [[UIDevice currentDevice] name];
+	//设备名称
+	NSString* deviceName = [[UIDevice currentDevice] systemName];
+	//手机系统版本
+	NSString* phoneVersion = [[UIDevice currentDevice] systemVersion];
+	//手机型号
+	NSString* phoneModel = [[UIDevice currentDevice] model];
+	//地方型号（国际化区域名称）
+	NSString* localPhoneModel = [[UIDevice currentDevice] localizedModel];
+
+	#import <sys/utsname.h>
+	+ (NSString *)getDeviceName {
+		struct utsname systemInfo;
+		uname(&systemInfo);
+		NSString *deviceString = [NSString stringWithCString:systemInfo.machine encoding:NSUTF8StringEncoding];
+		return deviceString;
+	}
+	
+    //simulator
+    if ([platform isEqualToString:@"i386"])          return @"Simulator";
+    if ([platform isEqualToString:@"x86_64"])        return @"Simulator";
+    
+    //AirPods
+    if ([platform isEqualToString:@"AirPods1,1"])    return @"AirPods";
+    //Apple TV
+    if ([platform isEqualToString:@"AppleTV2,1"])    return @"Apple TV (2nd generation)";
+    if ([platform isEqualToString:@"AppleTV3,1"])    return @"Apple TV (3rd generation)";
+    if ([platform isEqualToString:@"AppleTV3,2"])    return @"Apple TV (3rd generation)";
+    if ([platform isEqualToString:@"AppleTV5,3"])    return @"Apple TV (4th generation)";
+    if ([platform isEqualToString:@"AppleTV6,2"])    return @"Apple TV 4K";
+    //Apple Watch
+    if ([platform isEqualToString:@"Watch1,1"])    return @"Apple Watch (1st generation)";
+    if ([platform isEqualToString:@"Watch1,2"])    return @"Apple Watch (1st generation)";
+    if ([platform isEqualToString:@"Watch2,6"])    return @"Apple Watch Series 1";
+    if ([platform isEqualToString:@"Watch2,7"])    return @"Apple Watch Series 1";
+    if ([platform isEqualToString:@"Watch2,3"])    return @"Apple Watch Series 2";
+    if ([platform isEqualToString:@"Watch2,4"])    return @"Apple Watch Series 2";
+    if ([platform isEqualToString:@"Watch3,1"])    return @"Apple Watch Series 3";
+    if ([platform isEqualToString:@"Watch3,2"])    return @"Apple Watch Series 3";
+    if ([platform isEqualToString:@"Watch3,3"])    return @"Apple Watch Series 3";
+    if ([platform isEqualToString:@"Watch3,4"])    return @"Apple Watch Series 3";
+    //HomePod
+    if ([platform isEqualToString:@"AudioAccessory1,1"])    return @"HomePod";
+    //iPad
+    if ([platform isEqualToString:@"iPad1,1"])    return @"iPad";
+    if ([platform isEqualToString:@"iPad2,1"])    return @"iPad 2";
+    if ([platform isEqualToString:@"iPad2,2"])    return @"iPad 2";
+    if ([platform isEqualToString:@"iPad2,3"])    return @"iPad 2";
+    if ([platform isEqualToString:@"iPad2,4"])    return @"iPad 2";
+    if ([platform isEqualToString:@"iPad3,1"])    return @"iPad (3rd generation)";
+    if ([platform isEqualToString:@"iPad3,2"])    return @"iPad (3rd generation)";
+    if ([platform isEqualToString:@"iPad3,3"])    return @"iPad (3rd generation)";
+    if ([platform isEqualToString:@"iPad3,4"])    return @"iPad (4th generation)";
+    if ([platform isEqualToString:@"iPad3,5"])    return @"iPad (4th generation)";
+    if ([platform isEqualToString:@"iPad3,6"])    return @"iPad (4th generation)";
+    if ([platform isEqualToString:@"iPad4,1"])    return @"iPad Air";
+    if ([platform isEqualToString:@"iPad4,2"])    return @"iPad Air";
+    if ([platform isEqualToString:@"iPad4,3"])    return @"iPad Air";
+    if ([platform isEqualToString:@"iPad5,3"])    return @"iPad Air 2";
+    if ([platform isEqualToString:@"iPad5,4"])    return @"iPad Air 2";
+    if ([platform isEqualToString:@"iPad6,7"])    return @"iPad Pro (12.9-inch)";
+    if ([platform isEqualToString:@"iPad6,8"])    return @"iPad Pro (12.9-inch)";
+    if ([platform isEqualToString:@"iPad6,3"])    return @"iPad Pro (9.7-inch)";
+    if ([platform isEqualToString:@"iPad6,4"])    return @"iPad Pro (9.7-inch)";
+    if ([platform isEqualToString:@"iPad6,11"])    return @"iPad (5th generation)";
+    if ([platform isEqualToString:@"iPad6,12"])    return @"iPad (5th generation)";
+    if ([platform isEqualToString:@"iPad7,1"])    return @"iPad Pro (12.9-inch, 2nd generation)";
+    if ([platform isEqualToString:@"iPad7,2"])    return @"iPad Pro (12.9-inch, 2nd generation)";
+    if ([platform isEqualToString:@"iPad7,3"])    return @"iPad Pro (10.5-inch)";
+    if ([platform isEqualToString:@"iPad7,4"])    return @"iPad Pro (10.5-inch)";
+    if ([platform isEqualToString:@"iPad7,5"])    return @"iPad (6th generation)";
+    if ([platform isEqualToString:@"iPad7,6"])    return @"iPad (6th generation)";
+    //iPad mini
+    if ([platform isEqualToString:@"iPad2,5"])    return @"iPad mini";
+    if ([platform isEqualToString:@"iPad2,6"])    return @"iPad mini";
+    if ([platform isEqualToString:@"iPad2,7"])    return @"iPad mini";
+    if ([platform isEqualToString:@"iPad4,4"])    return @"iPad mini 2";
+    if ([platform isEqualToString:@"iPad4,5"])    return @"iPad mini 2";
+    if ([platform isEqualToString:@"iPad4,6"])    return @"iPad mini 2";
+    if ([platform isEqualToString:@"iPad4,7"])    return @"iPad mini 3";
+    if ([platform isEqualToString:@"iPad4,8"])    return @"iPad mini 3";
+    if ([platform isEqualToString:@"iPad4,9"])    return @"iPad mini 3";
+    if ([platform isEqualToString:@"iPad5,1"])    return @"iPad mini 4";
+    if ([platform isEqualToString:@"iPad5,2"])    return @"iPad mini 4";
+    //iPhone
+    if ([platform isEqualToString:@"iPhone1,1"])     return @"iPhone 1G";
+    if ([platform isEqualToString:@"iPhone1,2"])     return @"iPhone 3G";
+    if ([platform isEqualToString:@"iPhone2,1"])     return @"iPhone 3GS";
+    if ([platform isEqualToString:@"iPhone3,1"])     return @"iPhone 4";
+    if ([platform isEqualToString:@"iPhone3,2"])     return @"iPhone 4";
+    if ([platform isEqualToString:@"iPhone4,1"])     return @"iPhone 4S";
+    if ([platform isEqualToString:@"iPhone5,1"])     return @"iPhone 5";
+    if ([platform isEqualToString:@"iPhone5,2"])     return @"iPhone 5";
+    if ([platform isEqualToString:@"iPhone5,3"])     return @"iPhone 5C";
+    if ([platform isEqualToString:@"iPhone5,4"])     return @"iPhone 5C";
+    if ([platform isEqualToString:@"iPhone6,1"])     return @"iPhone 5S";
+    if ([platform isEqualToString:@"iPhone6,2"])     return @"iPhone 5S";
+    if ([platform isEqualToString:@"iPhone7,1"])     return @"iPhone 6 Plus";
+    if ([platform isEqualToString:@"iPhone7,2"])     return @"iPhone 6";
+    if ([platform isEqualToString:@"iPhone8,1"])     return @"iPhone 6s";
+    if ([platform isEqualToString:@"iPhone8,2"])     return @"iPhone 6s Plus";
+    if ([platform isEqualToString:@"iPhone8,4"])     return @"iPhone SE";
+    if ([platform isEqualToString:@"iPhone9,1"])     return @"iPhone 7";
+    if ([platform isEqualToString:@"iPhone9,3"])     return @"iPhone 7";
+    if ([platform isEqualToString:@"iPhone9,2"])     return @"iPhone 7 Plus";
+    if ([platform isEqualToString:@"iPhone9,4"])     return @"iPhone 7 Plus";
+    if ([platform isEqualToString:@"iPhone10,1"])    return @"iPhone 8";
+    if ([platform isEqualToString:@"iPhone10,4"])    return @"iPhone 8";
+    if ([platform isEqualToString:@"iPhone10,2"])    return @"iPhone 8 Plus";
+    if ([platform isEqualToString:@"iPhone10,5"])    return @"iPhone 8 Plus";
+    if ([platform isEqualToString:@"iPhone10,3"])    return @"iPhone X";
+    if ([platform isEqualToString:@"iPhone10,6"])    return @"iPhone X";
+    if ([platform isEqualToString:@"iPhone11,8"])    return @"iPhone XR";
+    if ([platform isEqualToString:@"iPhone11,2"])    return @"iPhone XS";
+    if ([platform isEqualToString:@"iPhone11,4"])    return @"iPhone XS Max";
+    if ([platform isEqualToString:@"iPhone11,6"])    return @"iPhone XS Max";
+    //iPod touch
+    if ([platform isEqualToString:@"iPod1,1"])    return @"iPod touch";
+    if ([platform isEqualToString:@"iPod2,1"])    return @"iPod touch (2nd generation)";
+    if ([platform isEqualToString:@"iPod3,1"])    return @"iPod touch (3rd generation)";
+    if ([platform isEqualToString:@"iPod4,1"])    return @"iPod touch (4th generation)";
+    if ([platform isEqualToString:@"iPod5,1"])    return @"iPod touch (5th generation)";
+    if ([platform isEqualToString:@"iPod7,1"])    return @"iPod touch (6th generation)";
+
+8,iOS 清除角标
+ 	[UIApplication sharedApplication].applicationIconBadgeNumber = -1;     
+
+9,iOS 摇一摇
+	#import "SignBoardViewController.h"
+	#import <AVFoundation/AVFoundation.h>
+	#import <AudioToolbox/AudioToolbox.h>
+	#import <CoreAudio/CoreAudioTypes.h>
+	@interface SignBoardViewController ()
+	{
+	}
+	@property (nonatomic,strong) AVAudioPlayer * audioPlayer;
+
+	@end
+
+	@implementation SignBoardViewController
+
+	- (void)viewDidLoad {
+	  [super viewDidLoad];
+	  // Do any additional setup after loading the view.
+	  //设置导航
+	  [self makeNav];
+	}
+
+	#pragma mark 定制Nav
+	- (void)makeNav
+	{
+	  [self.navigationItem setTitle:@"每日签到"];//改写title
+	  //修改导航按钮，并且修改响应方法
+	  self.leftButton.frame = CGRectMake(0, 0, 13, 20);
+	  [self.leftButton setBackgroundImage:[UIImage imageNamed:@"NavBack"] forState:UIControlStateNormal];
+	  self.leftButton.layer.cornerRadius = 0;
+	  self.leftButton.layer.masksToBounds = NO;
+	  self.leftButton.layer.borderColor = [UIColor clearColor].CGColor;
+
+	  //添加点击方法
+	  [self.leftButton addTarget:self action:@selector(navLeftClick) forControlEvents:UIControlEventTouchUpInside];
+
+	  //隐藏 右边按钮
+	  self.rightButton.hidden= YES;
+	}
+
+	#pragma mark nav左边导航按钮方法重写,返回按钮
+	- (void)navLeftClick
+	{
+	  [self dismissViewControllerAnimated:YES completion:^{
+	    nil;
+	  }];
+	}
+
+	#pragma mark -
+	#pragma mark 点击
+	- (void)touchesBegan:(nonnull NSSet<UITouch *> *)touches withEvent:(nullable UIEvent *)event
+
+	{
+	  NSLog(@"点击，触摸方法等");
+	  AudioServicesPlaySystemSound(kSystemSoundID_Vibrate);
+
+	}
+
+	#pragma mark -
+	#pragma mark 摇动开始
+	- (void)motionBegan:(UIEventSubtype)motion withEvent:(nullable UIEvent *)event
+
+	{
+
+	  NSLog(@"begin motion");
+
+	}
+
+	#pragma mark -
+	#pragma mark 摇动结束
+	- (void)motionEnded:(UIEventSubtype)motion withEvent:(nullable UIEvent *)event
+	{
+	  NSLog(@"end motion");
+	  if (motion ==UIEventSubtypeMotionShake )
+	  {
+	    //播放音效
+	    SystemSoundID  soundID; // shake_sound_male.mp3
+	    NSString *path = [[NSBundle mainBundle ] pathForResource:@"shake_sound_male" ofType:@"mp3"];
+	    AudioServicesCreateSystemSoundID((__bridge CFURLRef)[NSURL fileURLWithPath:path], &soundID);
+	    AudioServicesPlaySystemSound (soundID);
+	    //设置震动
+	    AudioServicesPlaySystemSound(kSystemSoundID_Vibrate);
+	  }
+
+	}
+
+	#pragma mark -
+	#pragma mark 摇动取消
+	- (void)motionCancelled:(UIEventSubtype)motion withEvent:(UIEvent *)event
+	{
+
+	}
+
+	- (void)didReceiveMemoryWarning {
+	  [super didReceiveMemoryWarning];
+	  // Dispose of any resources that can be recreated.
+	}
+
+10,摄像头检测
+	// AVCaptureVideoDataOutputSampleBufferDelegate代理方法
+	// 摄像头输出的视频流
+	- (void)captureOutput:(AVCaptureOutput *)captureOutput didOutputSampleBuffer:(CMSampleBufferRef)sampleBuffer fromConnection:(AVCaptureConnection *)connection {
+		// 获取视频流的相关参数
+		CFDictionaryRef metadataDict = CMCopyDictionaryOfAttachments(NULL,sampleBuffer, kCMAttachmentMode_ShouldPropagate);
+		NSDictionary *metadata = [[NSMutableDictionary alloc] initWithDictionary:(__bridge NSDictionary*)metadataDict];
+		CFRelease(metadataDict);
+
+		"exif中有个brightness参数值"
+		NSDictionary *exifMetadata = [metadata[(NSString *)kCGImagePropertyExifDictionary] mutableCopy];
+		float brightnessValue = [exifMetadata[(NSString *)kCGImagePropertyExifBrightnessValue] floatValue];
+
+		// 在UI上显示
+		self.cameraBightnessLbl.text = [NSString stringWithFormat:@"%.2f",brightnessValue];
+	}
+
+11, 距离传感器检测
+
+    1. 距离传感器默认是关闭的，需手动开启
+       [UIDevice currentDevice].proximityMonitoringEnabled = YES/NO;
+
+    2. 传感器开启后，通过通知监听是否有物体靠近
+        1. 通知名：UIDeviceProximityStateDidChangeNotification；
+        2. 返回对象：notification.object会返回UIDevice对象；
+        3. 判断：UIDevice对象的proximityState属性指示是否靠近用户，YES(靠近)／NO(离开)
+    3. 代码
+        - (IBAction)proximitySwitch:(UISwitch *)sender {
+            // 传感器的开启与关闭
+            [UIDevice currentDevice].proximityMonitoringEnabled = sender.on;    
+
+            // 可用性检测
+            if (sender.on && ![UIDevice currentDevice].proximityMonitoringEnabled) {
+                sender.on = NO;
+                [self showWithTitle:@"距离传感器不可用" message:nil];
+                return;
+            }
+
+            // 通知监听状态
+            if (sender.on) {
+                [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(proximityStateChange:) name:UIDeviceProximityStateDidChangeNotification object:nil
+                 ];
+            } else {
+                [[NSNotificationCenter defaultCenter] removeObserver:self name:UIDeviceProximityStateDidChangeNotification object:nil];
+            }
+        }
+        
+        - (void)proximityStateChange:(NSNotification *)noti {
+            UIDevice *device = noti.object;
+            if ([device isKindOfClass:[UIDevice class]]) {
+                // 是否有物体靠近
+                NSLog(@"%@", (device.proximityState? @"物体靠近" : @"物体离开"));
+            }
+        }
+
+12, 计步器
+	计步器能获取的数据
+	1. startDate：开始时间段
+	2. endDate：结束时间段
+	3. numberOfSteps：步数
+	4. distance：距离
+	5. floorsAscended：爬楼数
+	6. floorsDescended：下楼数
+	7. ios9以后的系统才有
+	1. currentPace：当前步速 in seconds per meter
+	2. currentCadence：当前步频 in steps per second
+	8. ios10的
+	1. averageActivePace：平均活跃时间段的步速
+	使用
+		"运动与健康"权限设置
+		1. 使用计步器需添加权限NSMotionUsageDescription描述
+		2. 第一次使用CMPedometer对象的时候系统自动会向用户请求"运动与健康"授权
+		3. 授权判断：[CMSensorRecorder isAuthorizedForRecording];
+		4. 没找到授权的方法：不过由于系统会自动授权(第2条)，通过下面的方法也可以达到授权的效果，
+		该方法在获取到用户的选择之后才会进行回调
+		[self.pedometer queryPedometerDataFromDate:toDate:withHandler:]
+
+	获取数据
+		1. CMPedometer中的对象方法
+		// 获取某时间段的历史数据
+		- (void)queryPedometerDataFromDate:(NSDate *)start toDate:(NSDate *)end withHandler:(CMPedometerHandler)handler;
+		// 从某时间段开始实时获取数据，停止获取的时候需调用stopPedometerUpdates方法
+		- (void)startPedometerUpdatesFromDate:(NSDate *)start withHandler:(CMPedometerHandler)handler;
+		// 获取计步器的状态（暂停／记步），停止获取的时候需调用stopPedometerEventUpdates方法
+		- (void)startPedometerEventUpdatesWithHandler:(CMPedometerEventHandler)handler NS_AVAILABLE(NA,10_0) __WATCHOS_AVAILABLE(3_0);
+		// 停止更新数据
+		- (void)stopPedometerUpdates;
+		// 停止状态更新
+		- (void)stopPedometerEventUpdates NS_AVAILABLE(NA,10_0);
+
+
+
+
+ 	2. 主要的代码实现
+     // 1. 初始化计步器self.pedometer
+     - (CMPedometer *)pedometer {
+            if (!_pedometer) {
+                _pedometer = [[CMPedometer alloc] init];
+            }
+           return _pedometer;
+       }
+
+      // 2. 通过一个开关开启／关闭记步功能
+     - (IBAction)recordStepCount:(UIButton *)sender {
+           BOOL start = !sender.selected;
+           // 开始记步
+           if(start){
+
+               // 可用性检测
+               if(![CMPedometer isStepCountingAvailable]){
+                   [self showWithTitle:@"计步器不可用" message:nil];
+                  return;
+               }
+
+               // 1 授权
+               // 1.1 pedometer第一次被使用时，会由系统主动提示用户授权“运动与健康”;但没找到授权的相关方法，通过该方式实现需求
+               __weak typeof (self) weakSelf = self;
+               [self.pedometer queryPedometerDataFromDate:[NSDate date] toDate:[NSDate date] withHandler:^(CMPedometerData * _Nullable pedometerData, NSError * _Nullable error) {
+                   // 1.2 用户选择了授权与否之后，该block才会被调用，不在主线程
+                   dispatch_async(dispatch_get_main_queue(), ^{
+                       // 1.3 授权判断
+                       if(![CMSensorRecorder isAuthorizedForRecording]){
+                           [weakSelf showWithTitle:@"未授权" message:@"前往设置－>隐私->运动与健康，点击允许访问"];
+                           return;
+                       }
+                       sender.selected = YES;
+                   
+                       // 2. 获取数据
+                       // 2.1 监测计步器状态：暂停、恢复
+                       [weakSelf.pedometer startPedometerEventUpdatesWithHandler:^(CMPedometerEvent * _Nullable pedometerEvent, NSError * _Nullable error) {
+                           NSLog(@"%@",pedometerEvent.type==CMPedometerEventTypePause? @"暂停":@"继续");
+                       }];
+                   
+                       // 2.2 监测计步器数据
+                       [weakSelf.pedometer startPedometerUpdatesFromDate:[NSDate date] withHandler:^(CMPedometerData * _Nullable pedometerData, NSError * _Nullable error) {
+                           if (pedometerData) {
+                               // 2.3 处理数据：回调不在主线程，所以需要回到主线程处理
+                               dispatch_async(dispatch_get_main_queue(), ^{
+                                   // 数据存储在pedometerData中
+                                   ...
+                               });
+                           }
+                       }];
+                   });
+               }];
+           } else {
+               // 结束记步
+               sender.selected = NO;
+               [self.pedometer stopPedometerUpdates];
+               [self.pedometer stopPedometerEventUpdates];
+           }
+       }
+
+13, 加速计-陀螺仪-磁力计
+	// 存储加速计数据
+	@property(readonly, nullable) CMAccelerometerData *accelerometerData;
+	// 开始更新加速计数据，不带回调，可以添加定时器定时去获取CMMotionManager对象的accelerometerData数据
+	- (void)startAccelerometerUpdates;	
+	// 开始更新加速计数据，带回调，由于数据可能更新频率快，不建议使用主队列
+	- (void)startAccelerometerUpdatesToQueue:(NSOperationQueue *)queue withHandler:(CMAccelerometerHandler)handler;	
+	// 不再需要更新数据的时候需要调用停止更新的方法
+	- (void)stopAccelerometerUpdates;
+	// 1. 初始化CMMotionManager对象并设置属性存储，设置数据的更新间隔
+	   - (CMMotionManager *)motionManage {
+		if (!_motionManage) {
+			_motionManage = [[CMMotionManager alloc] init];
+			// 控制传感器的更新间隔
+			_motionManage.accelerometerUpdateInterval = 0.2;
+			_motionManage.gyroUpdateInterval = 0.2;
+			_motionManage.magnetometerUpdateInterval = 0.2;
+		}
+		return _motionManage;
+	}
+	// 2. 开始/结束更新数据，只举例带回调的方法
+	- (IBAction)accelerometerTest:(UIButton *)sender {
+	    BOOL start = !sender.selected;
+
+	    // 2.1 根据设置的时间间隔定期更新数据
+	    if (start) {
+	        // 可用性检测
+	        if(![self.motionManage isAccelerometerAvailable]){
+	            [self showWithTitle:@"加速计不可用" message:nil];
+	            return;
+	        }
+	        sender.selected = YES;
+	        __weak typeof (self) weakSelf = self;
+
+	        // 数据更新有可能比较频繁，不建议使用主队列
+	        NSOperationQueue *queue = [NSOperationQueue new];
+	        [self.motionManage startAccelerometerUpdatesToQueue:queue withHandler:^(CMAccelerometerData * _Nullable accelerometerData, NSError * _Nullable error) {
+	            // 回到主线程
+	            dispatch_async(dispatch_get_main_queue(), ^{
+	                // 数据显示
+	                weakSelf.accelerationXLbl.text = [NSString stringWithFormat:@"%.2f", accelerometerData.acceleration.x];
+	                weakSelf.accelerationYLbl.text = [NSString stringWithFormat:@"%.2f", accelerometerData.acceleration.y];
+	                weakSelf.accelerationZLbl.text = [NSString stringWithFormat:@"%.2f", accelerometerData.acceleration.z];
+	            });
+	        }];
+	    } else {
+
+	    // 2.2 停止获取数据
+	        sender.selected = NO;
+	        [self.motionManage stopAccelerometerUpdates];
+	    }
+	}
+
+14,iOS定位、获取方向、区域监测
+	在 info.plist 添加权限
+	NSLocationWhenInUseUsageDescription  Yes
+	NSLocationAlwaysUsageDescription 	Yes
+
+
+	import CoreLocation
+	/// 声明一个全局变量
+	var locationManager:CLLocationManager!
+	///实现调用方法
+	func loacation() {
+	    locationManager = CLLocationManager()
+	    /// 设置定位的精确度
+	    locationManager.desiredAccuracy = kCLLocationAccuracyBest
+	    /// 设置定位变化的最小距离 距离过滤器
+	    locationManager.distanceFilter = 50
+	    /// 设置请求定位的状态
+	    if #available(iOS 8.0, *) {
+	        /// 用户使用期间
+	        locationManager.requestWhenInUseAuthorization()
+	        /// 总是允许
+	        locationManager.requestAlwaysAuthorization()
+	    }
+	    /// 设置代理
+	    locationManager.delegate = self;
+	    if CLLocationManager.locationServicesEnabled(){
+	        /// 开启定位服务
+	        locationManager.startUpdatingLocation()
+	        /// 开启方向服务
+	        locationManager.startUpdatingHeading()
+	        /// 先指定位置中心
+	        var companyCenter = CLLocationCoordinate2D()
+	        companyCenter.latitude = 29.61710109843841
+	        companyCenter.longitude = 106.49967413405561
+	        /// 设置一个方圆200米的范围
+	        let regin = CLCircularRegion.init(center: companyCenter, radius: 200, identifier: "id")
+	        /// 开始监听有没有进入、离开这个区域
+	        locationManager.startMonitoring(for: regin)
+	    } else {
+	        print("没有定位服务")
+	    }
+	}
+
+	///实现代理方法
+	extension ViewController: CLLocationManagerDelegate {
+	    /// 定位失败调用的代理方法
+	    func locationManager(_ manager: CLLocationManager, didFailWithError error: Error) {
+	        print(error.localizedDescription)
+	    }
+	    
+	    /// 当定位授权状态改变
+	    func locationManager(_ manager: CLLocationManager, didChangeAuthorization status: CLAuthorizationStatus) {
+	        switch status {
+	            case .notDetermined:
+	                print("未决定")
+	            case .restricted:
+	                print("未授权")
+	            case .denied:
+	                print("拒绝")
+	            case .authorizedAlways:
+	                print("总是允许")
+	            case .authorizedWhenInUse:
+	                print("仅使用时")
+	            @unknown default:
+	                print("")
+	        }
+	    }
+
+	    /// 定位更新地理信息调用的代理方法
+	    func locationManager(_ manager: CLLocationManager, didUpdateLocations locations: [CLLocation]) {
+	        /// 停止定位
+	        manager.stopUpdatingLocation()
+	        /// 获取用户位置的对象
+	        if locations.count > 0, let info = locations.last {
+	            print("海拔：\(info.altitude),经度：\(info.coordinate.longitude), 纬度：\(info.coordinate.latitude)")
+	            let coder = CLGeocoder()
+	            coder.reverseGeocodeLocation(info) { marks, error in
+	                if let list = marks, list.count > 0{
+	                    let placemark = list[0]
+	                    print("国家：\(placemark.country!) 城市：\(placemark.locality!) 区县：\(placemark.subLocality!) 街道：\(placemark.thoroughfare!)")
+	                }
+	            }
+	            
+	        }
+
+	     }
+	     
+	    /// 获取设备的朝向
+	    func locationManager(_ manager: CLLocationManager, didUpdateHeading newHeading: CLHeading) {
+	        print("X:\(newHeading.x),Y:\(newHeading.y),Z:\(newHeading.z),")
+	        
+	    }
+	    
+	        /// 进入指定区域
+	    func locationManager(_ manager: CLLocationManager, didEnterRegion region: CLRegion) {
+	        let alertController = UIAlertController(title: "提示", message: "进入考核区域", preferredStyle: .alert)
+	        let action = UIAlertAction(title: "确定", style: .cancel, handler: nil)
+	        alertController.addAction(action)
+	        self.present(alertController, animated: true, completion: nil)
+	    }
+	    
+	    /// 离开指定区域
+	    func locationManager(_ manager: CLLocationManager, didExitRegion region: CLRegion) {
+	        let alertController = UIAlertController(title: "提示", message: "离开考核区域", preferredStyle: .alert)
+	        let action = UIAlertAction(title: "确定", style: .cancel, handler: nil)
+	        alertController.addAction(action)
+	        self.present(alertController, animated: true, completion: nil)
+	    }
+	}
+
+15,自带翻译API调用及代码实现
+	<1>,在“General”选项卡下找到“Linked Frameworks and Libraries”和“Embedded Binaries”，然后单击“+”按钮。
+	<2>, 语音：从弹出菜单中选择“Speech.framework”
+	<3>, 如果您想使用翻译机器框架，请继续单击“+”按钮并导入“Translation.framework”
+	《4》，添加访问权限
+		
+
+		import Foundation
+		import Speech
+
+		class TranslationService {
+		  private let speechRecognizer = SFSpeechRecognizer(locale: Locale(identifier: "zh-CN"))
+		  
+		  func translate(text: String, completion: @escaping (Result<String, Error>) -> Void) {
+		    let request = SFSpeechTranslationRequest(locale: Locale(identifier: "en"))
+		    request.sourceSpeech = AVSpeechUtterance(string: text)
+		    
+		    speechRecognizer?.recognitionTask(with: request) { (result, error) in
+		      guard let translationResult = result else {
+		        completion(.failure(error!))
+		        return
+		      }
+		      
+		      completion(.success(translationResult.translations.first?.formattedString ?? ""))
+		    }
+		  }
+		}
+
+
+		//引入头文件
+		import Speech
+
+		// 请求语音识别授权
+		SFSpeechRecognizer.requestAuthorization { authStatus in
+		    if authStatus == .authorized {
+		        print("授权成功")
+		    }
+		}
+
+		// 创建SpeechRecognizer对象，用于识别语音
+		let recognizer = SFSpeechRecognizer(locale: Locale(identifier: "zh-CN"))
+		// 创建识别请求 ）
+		let request = SFSpeechURLRecognitionRequest(url: audioFileURL)
+		// 开始识别语音
+		recognizer?.recognitionTask(with: request, resultHandler: { (result, error) in
+		    if let result = result {
+		        // 获取语音识别结果
+		        let transcript = result.bestTranscription.formattedString
+
+		        // 创建翻译请求
+		        let options: [String: Any] = [
+		            "sourceLanguage": "en",
+		            "targetLanguage": "zh-CN"
+		        ]
+		        let request = NSLinguisticTagger.Request(tagSchemes: [.languageTranslation], options: options)
+
+		        // 进行翻译
+		        NSLinguisticTagger(tagSchemes: [.languageTranslation], options: Int(), schemes: nil).string = transcript
+		        let translation = try? NSLinguisticTagger(tagSchemes: [.languageTranslation], options: Int(), schemes: [NSLinguisticTagScheme.languageTranslation.rawValue]).linguisticTags(in: NSRange(location: 0, length: transcript.count), scheme: .languageTranslation, options: options, tokenRanges: nil).first
+
+		        print("识别结果：\(transcript)")
+		        print("翻译结果：\(translation ?? "")")
+		    } else if let error = error {
+		        print(error.localizedDescription)
+		    }
+		})
+
+
+		// 创建一个翻译器实例
+		let translator = Translator()
+		// 设置要翻译的源语言和目标语言
+		translator.sourceLanguage = .english
+		translator.targetLanguage = .chinese
+		// 设置要翻译的文本
+		let textToTranslate = "Hello World"
+		// 执行翻译
+		let translatedText = translator.translate(textToTranslate)
+		// 输出翻译后的文本
+		print("Translated Text: \(translatedText)")
+
+16，oc地图访问
+	引入库：MapKit.framework
+	导入头文件：
+		#import <CoreLocation/CoreLocation.h>
+		#import <MapKit/MapKit.h>
+	【地点标注】
+		MKMapItem *currentLocation = [MKMapItem mapItemForCurrentLocation];
+		MKMapItem *toLocation = [[MKMapItem alloc] initWithPlacemark:[[MKPlacemark alloc] initWithCoordinate:CLLocationCoordinate2DMake(self.lat.floatValue, self.lon.floatValue) addressDictionary:nil]]; //目的地坐标
+		toLocation.name = self.destination; //目的地名字
+		[toLocation openInMapsWithLaunchOptions:nil];
+	【线路导航】
+		MKMapItem *currentLocation = [MKMapItem mapItemForCurrentLocation];
+		MKMapItem *toLocation = [[MKMapItem alloc] initWithPlacemark:[[MKPlacemark alloc] initWithCoordinate:CLLocationCoordinate2DMake(self.lat.floatValue, self.lon.floatValue) addressDictionary:nil]]; //目的地坐标
+		    toLocation.name = self.destination; //目的地名字
+		[MKMapItem openMapsWithItems:@[currentLocation, toLocation] launchOptions:@{MKLaunchOptionsDirectionsModeKey: MKLaunchOptionsDirectionsModeWalking,MKLaunchOptionsShowsTrafficKey: [NSNumber numberWithBool:NO]}];
+		/**
+         MKLaunchOptionsDirectionsModeKey   路线模式，常量
+         MKLaunchOptionsDirectionsModeDriving  驾车模式
+         MKLaunchOptionsDirectionsModeWalking 步行模式
+         
+         MKLaunchOptionsMapTypeKey  地图类型，
+         枚举 MKMapTypeStandard ：标准模式
+         MKMapTypeSatellite ：卫星模式
+         MKMapTypeHybrid  ：混合模式
+         
+         MKLaunchOptionsMapCenterKey 中心点坐标， CLLocationCoordinate2D类型
+         MKLaunchOptionsMapSpanKey  地图显示跨度，MKCoordinateSpan 类型
+         MKLaunchOptionsShowsTrafficKey 是否 显示交通状况，布尔型
+         MKLaunchOptionsCameraKey   3D地图效果，MKMapCamera类型(注意：此属性从iOS7及以后可用，前面的属性从iOS6开始可用)
+         */
+
+17，iOS 权限部分
+	<key>NSSpeechRecognitionUsageDescription</key>
+	<string>您的应用需要访问语音识别以便进行翻译。</string>
+	<key>NSMicrophoneUsageDescription</key>
+	<string>您的应用需要访问麦克风以便进行语音输入。</string>
+
+	<key>NSCameraUsageDescription</key>
+	<string>开启相机权限，活动扫一扫更快捷</string>
+	<key>NSLocationAlwaysAndwhenInUseUsageDescription</key>
+	<string>开启定位权限</string>
+	<key>NSLocationAlwaysUsageDescription</key>
+	<string>开启定位权限</string>
+	<key>NSLocationwhenInUseUsageDescription</key>
+	<string>开启定位权限</string>
+	<key>NsMicrophoneUsageDescription</key>
+	<string>开启麦克风权限</string>
+	<key>NsPhotoLibraryAddUsageDescription</key>
+	<string>添加照片需要您的同意</string>
+	<key>NsphotoLibraryUsageDescription</key>
+	<string>开启照片权限</string>
+
+	<!-- 蓝牙 -->   
+	<key>NSBluetoothPeripheralUsageDescription</key>   
+	<string>App需要您的同意,才能访问蓝牙</string>  
+	<!-- 地图 -->
+	LSApplicationQueriesSchemes
+		iosamap
+		baidumap
+		qqmap

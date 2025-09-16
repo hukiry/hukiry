@@ -1,0 +1,522 @@
+
+-----------------------------------------Java 环境配置--------------------------------------------------------
+  系统环境配置要求：不能有中文路径  下载SDK,ADT（包含Eclipse软件） ,Unity
+  一，JDK变量名：JAVA_HOME    变量值：C:\Program Files\Java\jdk1.7.0_60 
+  二，JRE变量名：Path         变量值：C:\Program Files\Java\jre7\bin;%ANDROID_HOME%\tools;%ANDROID_HOME%\platform-tools;   
+  三，Tool变量名：CLASSPATH    变量值：.;%JAVA_HOME%lib;%JAVA_HOME%lib\tools.jar;
+  四，SDK变量名：ANDROID_HOME 变量值：E:\android_NDK_SDK\android-sdk-windows\android-sdk-windows-28
+  五，检查：cmd中，输入 java,javac,adb shell
+
+  ADT->Eclipse软件配置:Window->preferences->Android-> SDK Location 路径:是sdk路径。
+  Unity SDK配置:->Edit-> preferences->ExternalTool-> SDK 路径和上面的一样（SDK Location 路径）
+
+
+Unity2019-2021
+  Java 8
+  Gradle JDK1.8 
+  NDK:r16b, r19c, r21
+  SDK:34
+  Gradle-wrapper 6.7.1 或 7.3
+  build:gradle 4.0.1 或 4.2.2
+
+-----------------------------------------C# manifest.xml文件配表说明---------------------------------------------------------
+   <?xml version="1.0" encoding="utf-8"?>
+   <manifest xmlns:android="http://schemas.android.com/apk/res/android"
+      package="com.shanggulingyu.huawei" 文件包名必须和Unity的签名一致，否则无法打包
+      android:installLocation="preferExternal"
+      android:versionCode="6" 更新版本和版本号，更新时用
+      android:versionName="5.0.1" >
+      <uses-sdk android:minSdkVersion="19" 应用程序运行的目标平台的SDK版本
+                android:targetSdkVersion="31"  最高API等级 对应 android 12.0
+                />
+      <supports-screens android:anyDensity="true" android:largeScreens="true" android:normalScreens="true"
+                        android:resizeable="true" android:smallScreens="true" />
+      <!--1程序广告位，或欢迎界面，启动时显示,初始化SDK时显示。-->
+      <application
+            android:name="com.lenovo.lps.reaper.sdk.AnalyticsApplication"
+            android:allowBackup="true"
+            android:icon="@drawable/app_icon" 应用程序图标，value-zh/strings.xml文件里有设置，如果没有设置，Unity会默认添加
+            android:label="@string/app_name" 
+            android:isGame="true"               是否是游戏
+            android:hardwareAccelerated="true"  硬件加速
+            android:largeHeap="true"            最大堆栈
+            android:extractNativeLibs="true"    so库进行压缩
+            android:usesCleartextTraffic="true" 启动http请求
+            android:networkSecurityConfig="@xml/network_security_config" 网络安全下 启动http请求
+            android:theme="@android:style/Theme.NoTitleBar" >
+            <activity
+                android:name="com.shanggulingyu.huawei.MainActivity" 2指定启动的java包类名。如果没有添加包名前缀，会默认添加启动 例如：.MainActivity
+                android:label="@string/app_name" 应用程序名，同上
+                android:screenOrientation="landscape" 横屏显示
+                android:configChanges="locale|fontScale|keyboard|keyboardHidden|layoutDirection|mcc|mnc|navigation|orientation|screenLayout|screenSize|smallestScreenSize|touchscreen|uiMode"
+                android:theme="@android:style/Theme.NoTitleBar.Fullscreen" >
+                <intent-filter> 程序入口，必须设置项。
+                    <action android:name="lenovoid.MAIN" />
+                    <category android:name="android.intent.category.DEFAULT" />应用启动时，会先执行的java类，如果没有设置，则需要其他类调用
+                </intent-filter>
+            </activity>
+            <!-- 设置其他sdk活动窗口 -->
+            <activity android:name="com.ledi.floatwindow.activity.SMSVerActicity" />
+            <activity android:name="com.ledi.activity_393.RealName" android:theme="@style/Float.Window.Theme.NoTitle.FullScreen" />
+
+
+        <!--权限设置start-->
+            <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
+            <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
+            <uses-permission android:name="android.permission.SYSTEM_ALERT_WINDOW" />
+            <uses-permission android:name="android.permission.GET_TASKS" />
+            <uses-permission android:name="android.permission.NFC" />
+            <uses-permission android:name="android.permission.CHANGE_WIFI_STATE" />
+            <uses-permission android:name="android.permission.CHANGE_NETWORK_STATE" />
+
+             <!-- google分包权限 -->
+            <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
+            <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
+            <uses-permission android:name="android.permission.ACCESS_WIFI_STATE"/>
+            <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+            <uses-permission android:name="android.permission.WAKE_LOCK" />
+            <uses-permission android:name="android.permission.INTERNET" />
+            <uses-permission android:name="com.android.vending.CHECK_LICENSE" />
+
+            <!-- 文件读写权限 -->
+            <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
+            <!-- 声音权限 -->
+            <uses-permission android:name="android.permission.RECORD_AUDIO" />
+            <!-- 照相的权限 -->
+            <uses-feature android:name="android.hardware.camera" />
+            <uses-permission android:name="android.permission.CAMERA" />
+            <uses-feature android:name="android.hardware.camera.autofocus" />
+
+            <!-- 读取短信验证码  可选 -->
+            <uses-permission android:name="android.permission.RECEIVE_SMS" />
+            <uses-permission android:name="android.permission.READ_SMS" />
+
+            <!-- 录像需要的权限 -->
+            <uses-permission android:name="android.permission.MOUNT_UNMOUNT_FILESYSTEMS" />
+            <uses-permission android:name="android.permission.RECORD_VIDEO" />
+
+            <!-- 打电话权限 -->
+            <uses-permission android:name="android.permission.CALL_PHONE"/>
+
+            <!--bugly配置权限start-->
+            <uses-permission android:name="android.permission.READ_PHONE_STATE" />
+            <uses-permission android:name="android.permission.INTERNET" />
+            <!-- 网络权限 -->
+            <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+            <!-- wifi权限 -->
+            <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
+            <!-- 读取日志权限 -->
+            <uses-permission android:name="android.permission.READ_LOGS" />
+            <!--bugly配置权限end-->
+        <!--权限设置end-->
+
+            <!-- Android 自动缩放适配权限 android:value="2.2"适配比率值 w:h=2.1 -->
+            <meta-data android:name="android.max_aspect" android:value="2.2" />   
+            
+            <!-- Unity场景加载权限 需要引用classes.jar库 --> 
+            <meta-data android:name="unityplayer.UnityActivity" android:value="true" />
+
+        <!--bugly meta-data配置start-->
+            <!-- 配置APP ID 程序员注册  URL=https://bugly.qq.com/v2/workbench/apps -->
+            <meta-data android:name="BUGLY_APPID" android:value="f19b4246f3" />
+            <!-- 配置APP版本号 -->
+            <meta-data android:name="BUGLY_APP_VERSION" android:value="1.0.0" />
+            <!-- 配置APP渠道号 -->
+            <meta-data android:name="BUGLY_APP_CHANNEL" android:value="XMWSDK_Android" />
+            <!-- 配置Bugly调试模式（true或者false）调试为true，发布为false-->
+            <meta-data android:name="BUGLY_ENABLE_DEBUG" android:value="true" />
+        <!--bugly meta-data配置end-->
+
+      </application>
+
+   </manifest>
+
+--------------------------------------C# network_security_config.xml文件说明,所在目录:res/xml/---------------------------------------
+  <?xml version="1.0" encoding="utf-8"?>
+  <network-security-config xmlns:tools="http://schemas.android.com/tools">
+      <base-config cleartextTrafficPermitted="true"/>
+  </network-security-config>
+
+-----------------------------------------C#中的代码如下---------------------------------------------------------
+    AndroidJavaClass jc = new AndroidJavaClass ("com.unity3d.player.UnityPlayer");//获取继承的类
+    AndroidJavaObject jo = jc.GetStatic<AndroidJavaObject > ("currentActivity");//获取的静态字段
+    num = jo.Call <int> ("GetInt");//获取类的实例方法
+    Max = jo.Call<int> ("Max", new  object[]{ 2, 34 });//获取类的实例方法
+ 
+
+-----------------------------------------打包必须设置的项--------------------------------------------------------
+    Bundle Identifier 要和manifest.xml 文件里的报名一致
+    Version 版本名
+    Bundle Version Code 版本号
+    Minimum API Level 设置为9
+    Scripting Define Symbols 预处理名
+    Api Compatibility Level 必须设置为 .NET2.0，否则无法打包（Unity5.x版以下），Unity2017.x版本以上可以不用设置
+    Java类编写：可以自定义类和接口，以及包名
+
+
+-----------------------------------------接入SDK前的工作准备--------------------------------------------------------
+  1，查看SDK开发文档：登录，支付，manifest.xml文件配置，工程目录说明，参数说明
+  2，查看FAQ文档：SDK初始，登录，支付等遇到的问题。
+
+
+-----------------------------------------SDK常遇到的问题--------------------------------------------------------
+  1，把项目从Android Studio 转到eclipse中，只需要查看manifest.xml文件中的包名，来创建一个新的应用程序项目
+     然后复制res,lib,assets文件到自己的项目工程中。在src中创建自己的包：Android Studio中app/src/main/java等于eclipse中src文件夹
+
+  2，导出包，并在Unity中无法打包问题：
+     <1>，库文件有重复，需要删除一份。
+     <2>，如果控制台出现AndroidManifest.xml文件，需要检查配置文件是否语法正确
+     <3>，如果出现sdk目标问题，需要升级Android-sdk库版本
+
+  3，无法启动apk应用程序问题：
+     <1>，需要查看日志（打开E:\android-sdk-windows\tools\monitor.bat,用模拟器调试）有可能是初始化找不到文件，或appid不对。
+     <2>，打开出现“运行暂停对话框”，导入的sdk文件异常，需要检查，是否开启了多个线程导致。
+     <3>，SDK初始化失败问题。可能是SDK的appid或appKey没有设置或错误导致
+     <4>，初始化或登录找不到文件的情况导致闪退，这时需要解压其jar包，将assets里的文件复制到android/assets里，就可以了
+
+  5，登录问题：点击无反应，日志报线程handler错误，需要使用多线程加载用到handler。支付也一样。
+  6，登录成功：会获取token(session作为密码)，如果没有userID或uid(作为用户名)，那么就要拿token到自己的服务器去请求
+     验证，并获得用户名和token(作为密码)作为登录，再次请求自己的服务进行登录；如果有用户名，自己登录。另外还有加上
+     渠道号（数字）便于服务器区分。
+
+  7，其他SDK问题：
+  《1》QQ登陆的时候，上线前只有在后台配置过的账号才能登陆，拉起QQ登陆的时候就崩溃，原因是调用不到其jar包里面的文件，这时就需要将其jar包解压，将assets里的文件复制到Android/assets里，就能解决这个问题
+  《2》微信登陆的时候，包的签名要和提交申请应用宝sdk的包的签名保持一致，才能正常拉起微信登陆。
+  《3》九游（UC）：九游调用登陆模块前，需要保证初始化的时候DebugMode设置为false生产环境，保证初始化已经完成。
+  《4》360sdk有个自测工具，自测的时候会有出现找不到某几张图，将assets里的文件复制到Android/assets里，建对应的文件夹路径就能读取到了，路径为com\qihoo\updatesdk\drawable下的background_landscape.png、background_portrait.png、tips_flag.png和com\tencent\mm\sdk\platformtools下的rep5402863540997075488.tmp。
+  《5》Vivo的sdk的支付，需要客户端先将支付信息发到游戏服务端，由游戏服务端去Vivo服务端生成订单，再返回给客户端相应的参数，客户度再将这些参数以及其他支付信息发到sdk，调用其支付接口，校验成功后实现充值
+  《6》联想的sdk，则需要将各个充值档位去其后台登记，生成一个唯一的id（waresid），客户端只能调用这些已经申请的档位，因此测试的时候就只能充值这些固定金额，而不能自定义金额测试
+  《7》应用宝SDK，支付接口只需要发服务器id和充值金额就能调用，而且通过切换成测试地址后，在后台给测试账户充值后就能在测试环境下测试充值，之后切回正式地址后就可以回到正式环境。
+
+  《8》海外SDK，初始化失败导致闪退，需要看控制台监控找问题。如果控制台没有明显的提示，需将实例APK包和Unity包进行解包，看看Asset目录下的文件是否对应，那个文件不对就拷贝那个，或解压其他jar库获得。悬浮图标找不到问题，看显示的图标是否和实例图标一致，如果不一致的情况下，需要查看res目录文件下的png图片，找到与实例浮标图标相同的，然后修改现在图标目录所在的文件。
+
+
+-----------------------------------------ADT 老板版本--------------------------------------------------------
+  Eclipse参考：
+  Unity调用Android SDK 
+  当软件打开后，Eclipse,默认路径到
+
+  2，创建工程：NEW->Other
+  3，选择Android-->Android Application Project,点击下一步
+  4,输入应用程序名和项目名不要求【习惯和后面保存一致】，PackageName包名必须和
+  Unity的包名一致
+  5，MinimumRequiredSDK选择API14，只支持Android4.0以上版本。SDK的API和目标SDK匹配，还要与Unity的SDK匹配,Unity设置MinimumAPILevel设置为API Level 14 Theme设置为空,然后下一步。设置unity工程的SDK设置及签名
+  6，都是默认值，直接下一步
+  7，到了CreateActivity,选择空的EmptyActivity和BlankActivity,取决于你的版本,选择空并下一步
+  8，默认完成
+  9，选择SRC>包>类
+  10，在Unity的安装路径下搜索Classes.jar
+  路径：C:\Program Files\Unity\Editor\Data\PlaybackEngines\AndroidPlayer
+  \Variations\mono\Release\Classes
+  11，把classes拖动到libs文件夹下，直接复制文件即可。这样文件就到此目录下了
+  12，在classer.jar上鼠标右键，选择>BuildPath>Build To Path;那么就引入了包，类
+  似于引入命名空间
+  13，写代码引用import com.unity3d .player.UnityPlayerActivity;继承extends UnityPlayerActivity
+      选择这行删除掉setContentView(R.layout.activity_main);
+    自己写一个方法。
+ 代码修改完后，接下来开始导出类库
+  14，选择工程，鼠标右键》Proerties>Android>IS Library>OK勾选，完成。
+  15,菜单->Project>选择对勾(取消build Automatically)，然后选择清除Clean，点击OK;
+    最后:菜单->Project->Bulid Project
+  16.回到Unity新建文件路径Plugins->Android，然后把Android项目里生成的工程bin文件下的，
+  AndroidManifest和test.jar文件,放入到Unity的路径下
+  17,把Android工程下的res文件复制到Unity中
+  
+
+-----------------------------------------Android Studio 签名文件 及配置--------------------------------------------------------
+ unity Apk 证书获取：
+  Android studio ->Terminal 命令窗口
+  <1>,切换到指定目录路径：cd [目录路径]
+  <2>,查看Unity签名文件：keytool -list -keystore [keystore 文件]
+  <3>,输入密码即可：
+	  nuts power, 2019-10-16, PrivateKeyEntry,
+	  证书指纹 (SHA1): 97:A9:FA:ED:69:FA:FE:26:DD:8C:03:51:33:FB:AC:EC:EA:F4:FA:38
+
+
+  defaultConfig{
+  	multiDexEnabled true //启动 dex 混编
+  }
+
+  32+64位包
+  android {
+      packagingOptions {
+          exclude ('/lib/armeabi/*' + '*')
+          exclude ('/lib/mips/*' + '*')
+          exclude ('/lib/mips64/*' + '*')
+          exclude ('/lib/x86/*' + '*')
+          exclude ('/lib/x86_64/*' + '*')
+      }
+
+      packagingOptions {
+        doNotStrip '*/armeabi-v7a/*.so'
+        doNotStrip '*/arm64-v8a/*.so'
+        doNotStrip '*/armeabi/*.so'
+        doNotStrip '*/mips/*.so'
+        doNotStrip '*/mips64/*.so'
+        doNotStrip '*/x86/*.so'
+        doNotStrip '*/x86_64/*.so'
+    }
+  }
+
+  签名配置
+  signingConfigs {
+      release {
+          storeFile rootProject.file('key.jks') //签名文件
+          storePassword 'signindemo'  //密码
+          keyAlias 'signindemo'       //别名
+          keyPassword 'signindemo'    //密码
+      }
+  }
+
+  defaultConfig {
+    ndk {
+    	abiFilters 'armeabi-v7a','arm64-v8a'
+    }
+  }
+
+  //java编译版本选择
+  compileOptions {
+      sourceCompatibility JavaVersion.VERSION_1_8
+      targetCompatibility JavaVersion.VERSION_1_8
+  }
+  //有错误继续构建
+  lintOptions {
+      abortOnError false
+  }
+
+  包里的META-INF：签名后自动生成
+  aab 生成操作：build=>Generate Signed Bundle=>Next=>release=>Finish
+  apk签名命令：keytool -printcert -jarfile F:\MyDemo\Login\LoginDemo\app\debug\app-debug.apk
+  用as生成的SignedBundle .jks文件 执行命令：  keytool -list -v -alias 别名 -keystore 文件路径.jks
+
+  代码混淆启动
+  minifyEnabled true
+
+--------------------------------------- 系统工具最低版本 -----------------------------------------------------------
+  软件：android studio 4.1.0
+  Gradle:7.2
+  SDK build Tools 30.0.3
+  NDK 21.4.7075529
+  JDK 11
+  最新Android 系统 12.0 对应 targetSdkVersion = 31
+  Uunity 2018.x 对应 jdk-8.0,NDK-16
+
+-----------------------------------------AS 打包arr配置--------------------------------------------------------
+  《1》 打包aar文件
+    android studio build.gradle配置文件
+    compileOnly files('') 只参与编译，不打包
+    implementation 引用库，参与打包
+
+  《2》 Unity打包资源设置
+  sourceSets {
+      main {
+          manifest.srcFile 'AndroidManifest.xml'
+          java.srcDirs = ['java']
+          res.srcDirs = ['res']
+          assets.srcDirs = ['assets']
+          jniLibs.srcDirs = ['jniLibs']
+      }
+  }
+
+  《3》 自动化输出文件名 [aar, aab, apk]
+    libraryVariants.all { project ->
+        project.outputs.all {
+                outputFileName = "../../../arr/projectx-unity-debug-1.0.1.10.aar"
+        }
+    }
+    defaultConfig{
+      setProperty("archivesBaseName", "../../../apk/project_sanxiao-v${versionName}-${versionCode}")
+        multiDexEnabled true
+    }
+
+
+  《4》 google审核要移除的权限：
+    xmlns:tools="http://schemas.android.com/tools"
+    android.permission.READ_PHONE_STATE  读取电话权限
+    android.permission.ACCESS_COARSE_LOCATION   位置权限
+    android.permission.CHANGE_WIFI_STATE   更改 Wi-Fi 连接状态权限
+    android.permission.ACCESS_FINE_LOCATION   精确定位权限  
+    android.permission.ACCESS_BACKGROUND_LOCATION 访问后台定位权限
+    android.permission.ACCESS_LOCATION_EXTRA_COMMANDS  访问额外定位权限
+    android.permission.QUERY_ALL_PACKAGES   访问应用列表权限
+    android.permission.MANAGE_EXTERNAL_STORAGE 访问所有文件权限
+
+  《5》 离线推送，Android sdk 要使用 google 版本 ，审核才允许过
+
+  《6》 崩溃日志中出现：com.google.android.gms，表示google服务不支持
+
+  《7》 google aab文件，需要链接vpn 、登录沙河账号、才可以支付。
+
+  《8》 查看task 命令帮助 ： gradlew tasks --all
+      生成 gradlew clean assembleRelease
+
+  《9》 依赖项添加
+      ProjectStructure->Dependencies->选择Modules->添加组如下：
+      <dependency>
+        <groupId>com.aliyun.oss</groupId>
+        <artifactId>aliyun-sdk-oss</artifactId>
+        <version>3.10.2</version>
+      </dependency>
+
+  android 审核：宣传图不能太暴力
+
+  《10》 贴图压缩 ASTC6x6 通用
+    ASTC在iPhone6（A8芯片）以及之后的设备都支持
+    Unity对ASTC介绍（2016年之后的安卓手机基本支持）
+
+  《11》，代码混编和density 分包机制：
+    
+    分包级build.gradle
+      apply plugin: 'com.android.asset-pack'
+      assetPack {
+          packName = "install_time_asset_pack" // packName 的名称可更改，但是要和配置对应上
+          dynamicDelivery {
+              deliveryType = "install-time"   //只能指定一种类型，对应PAD分发模式
+          }
+      }
+    应用级app/settings.gradle
+      include ':install_time_asset_pack'   //命名要和packName一致（这段配置可复制）
+    应用级build.gradle
+      android {
+          assetPacks = [":install_time_asset_pack"]  //指定了install-time模式，其他两种模式大同小异，命名要和packName一致
+      }
+      dependencies {   implementation 'com.google.android.play:core:1.10.0' //play-core-native-sdk库编译 }  
+
+  《12》，广告来源 Meta, Admob, IronSource
+  
+  《13》，登录签名参考
+    Android Google和facebook三方登陆问题：https://www.jianshu.com/p/e9d3f15cbea8
+    Google登录官方指导文档：https://developers.google.com/identity/sign-in/android/sign-in
+    Facebook登录官方指导文档：https://developers.facebook.com/docs/facebook-login/android/
+
+  《14》 OpenSSL生成公私钥参考
+    https://www.jianshu.com/p/d8caf16c3857
+
+  《15》 国内游戏：
+    《1》，健康游戏公告：启动屏
+    《2》，用户协议和隐私保护协议
+    《3》，适龄提示和儿童隐私保护声明
+    《4》，第三方共享清单和应用权限
+
+
+NDK，Gradle,Jdk 版本说明
+  android-ndk-r19c 对应版本 Unity2019-2020
+     NDK文件修改路径：android-ndk-r19c/source.properties
+     NDK版本配置：Pkg.Revision = 19.0.5232133
+  android-ndk-r16b 对应版本 Unity2018之前
+  android-ndk-r21d 对应版本 Unity2021
+     gradle-6.1.1  对应版本 Unity2019.4
+      https://docs.unity3d.com/cn/2019.4/Manual/android-gradle-overview.html
+     JDK1.8 对应版本 Unity2018以上
+     SDK 编译对应版本 Unity2019 SDK Build v30.0.2
+ 
+出包设置：https://docs.unity3d.com/cn/2019.4/Manual/class-PlayerSettingsAndroid.html
+
+
+生成apk命令
+  在线出包生成
+  gradle clean
+  gradle assembleRelease/assembleDebug
+
+离线出包生成
+  cd %~dp0
+  gradlew.bat clean
+  gradlew.bat assembleRelease --offline
+
+卸载手机app命令：
+  ./adb shell pm disable-user 包名(com.miui.xx)
+
+审核出包：
+  一，apk&aab 混编配置：
+    1，配置混编清单:<application android:name="androidx.multidex.MultiDexApplication"/>
+    2, 应用层 build.gradle 
+      buildTypes.release{
+        minifyEnabled true //启动混编
+        shrinkResources true //优化资源
+        zipAlignEnabled true //Zip压缩
+      }
+    3, 添加混编文件 proguard-xx.txt
+      -keep class com.xxx.xxx.* {*; }
+    4, 添加dex混编依赖库
+      implementation "androidx.multidex:multidex:2.0.1"
+    5, 启动 dex 混编
+      defaultConfig{
+        multiDexEnabled true 
+      }
+
+    6,启动签名，默认是启动的
+      signingConfigs {
+        release {
+          v1SigningEnabled true //启动签名1
+          v2SigningEnabled true //启动签名2
+        }
+      }
+
+  二，调试符号配置
+    1，gradle配置 allprojects.buildscript.dependencies{
+        classpath 'com.android.tools.build:gradle:4.2.2'
+    }
+    2，NDK配置 build.gradle -->  android {
+        ndkVersion '19.0.5232133' 
+        buildTypes.release.ndk { debugSymbolLevel 'FULL' }
+    }
+
+打包apk命令 ./gradlew launcher:assembleDebug      
+打包aab命令 ./gradlew launcher:bundle  debug+release包
+           ./gradlew launcher:bundleRelease  只打包 release
+清空命令 ./gradlew clean
+
+
+系统语言代码：
+  简体    zh-cn   繁体    zh-hk   英语    en   西班牙  es
+  葡萄牙  pt      法语    fr      德语    de   俄语    ru
+  意大利  it      日语    ja      韩语    ko   越南语  vi
+  波兰语  pl      印尼语  id      泰语    th   马来语  ms
+  土耳其  tr      荷兰语  nl
+
+
+Google 审核：
+  1，支付测试：先提交到google play，然后登录海外测试账号从google play下载的包才可以测试支付
+  2，免费支付测试卡：需要在后台设置选项，开启不需要许可。清除缓存、重启app，即可测试 
+  3，后台添加海外测试账号，登录API，需要在后台生成webClientID，然后到firebase后台配置，生成google登录服务json文件，给前端。
+  4，后端登录验证：https://developers.google.cn/identity/sign-in/android/backend-auth
+  5，后端支付验证：https://blog.csdn.net/Jason_HD/article/details/130180064
+    《1》，获取code：https://accounts.google.com/o/oauth2/auth?scope=htps:/www.googleapis.com/auth/androidpublisher&response type=code&access_type=ofline&redirect_uri={填写的重定地址}&client_id={创建的clientid}
+址&client id={创建的clientld}
+    《2》，获取refreshToken：https://accounts.google.com/o/oauth2/token
+      需要参数：grant_type=authorization_code
+              code=获取的code
+              client_id(客户端id),client_secret（客户端密匙）
+              redirect_uri=https://developers.google.com
+    《3》，获取accessToken:https://accounts.google.com/o/oauth2/token
+        grant_type=refresh_token
+        refresh_token=获取的refresh_token
+        client_id(客户端id),client_secret（客户端密匙）
+    《4》，查询订单：htps:/androidpublisher.googleapis com/androidpublisher/v3/appications/{packageName}/purchases/products/{productId}/tokens/{token}?access_token={access_token}
+      packageName:app包名，productId=购买的商品ID，token=前端支付成功获得，access_token=前面获取accessToken
+
+打包Jar库文件
+    task makeJar{
+        copy{
+            delete('build/libs/myjar.jar')
+            from('build/intermediates/aar_main_jar/release/')
+            into('./libs/')
+            include('classes.jar')
+            rename('classes.jar', 'myjar.jar')
+        }
+    }
+    preBuild.dependsOn makeJar
+
+
+dll 提升下载速度
+  C:\Windows\System32\drivers\etc\hosts
+  220.181.174.33 dl.google.com
+  https://ping.chinaz.com/dl.google.com
+
+主线程调用
+  runOnUiThread(new Runnable() {
+      @Override
+      public void run() {
+          oneAdMod.showAd();
+      }
+  });

@@ -1,0 +1,66 @@
+
+一，跨域配置：
+	Access-Control-Allow-Credentials:true
+	Access-Control-Allow-Headers:origin,x-requested-with,content-type
+	Access-Control-Allow-Methods:POST,GET,OPTIONS
+	Access-Control-Allow-Origin：*
+
+二，Tolua插件升级及配置 
+ 	IIS搭建：https://baijiahao.baidu.com/s?id=1725459088333484926&wfr=spider&for=pc 
+ 	一，在LuaDll.cs中修改此行代码
+	 	#if !UNITY_EDITOR && (UNITY_IPHONE || UNITY_WEBGL)
+	        const string LUADLL = "__Internal";
+		#else
+		        const string LUADLL = "tolua";
+		#endif
+
+		protobuf.lua 修改为 return _M
+
+	二，将Lua c源代码 放在 Plugins/WebGL 之下，并设置所有的C库为 WebGL 平台
+
+	三，升级版本到Unity2019以上
+		1，ParameterAttributes语法修改
+		2，IsObsolete()方法过滤 t.Name == "MonoTODOAttribute", MonoPInvokeCallbackAttribute,MonoNotSupportedAttribute
+		3，memberFilter字段过滤
+	        #if UNITY_2021_1_OR_NEWER
+			        "Camera.FOVToFocalLength",
+			        "Camera.overrideSceneCullingMask",
+			        "Camera.SceneViewFilterMode",
+			        "MeshRenderer.scaleInLightmap",
+			        "MeshRenderer.receiveGI",
+			        "MeshRenderer.stitchLightmapSeams",
+			        "Material.SetKeyword",
+			        "Material.DisableKeyword",
+			        "Material.EnableKeyword",
+			        "Material.IsKeywordEnabled",
+			        "Shader.IsKeywordEnabled",
+			        "Shader.DisableKeyword",
+			        "Shader.IsKeywordEnabled",
+			        "Screen.MoveMainWindowTo",
+			        "Shader.SetKeyword",
+			        "Shader.EnableKeyword",
+			        "AudioSource.gamepadSpeakerOutputType",
+			        "AudioSource.SetGamepadSpeakerRestrictedAudio",
+			        "AudioSource.GamepadSpeakerSupportsOutputType",
+			        "AudioSource.DisableGamepadOutput",
+			        "AudioSource.PlayOnGamepad",
+			        "AudioSource.SetGamepadSpeakerMixLevel",
+			        "AudioSource.SetGamepadSpeakerMixLevelDefault",
+			        "UnityEngine.GamepadSpeakerOutputType",
+			        "Texture2D.vtOnly",
+			#endif
+
+三，WebGL插件下载
+	Tolua小程序转换：https://github.com/wechat-miniprogram/minigame-unity-webgl-transform
+	网络使用地址：https://github.com/psygames/UnityWebSocket
+
+四，ab加载： Unitywww异步加载方式
+
+五，微信小程序注册：
+	https://mp.weixin.qq.com/wxopen/waregister?action=step1
+	https://developers.weixin.qq.com/minigame/dev/guide/
+
+六，改变画布的尺寸
+	<div id="unity-container" style="position: absolute; width: 100%; height: 100%">
+	  <canvas id="unity-canvas" width={{{ WIDTH }}} height={{{ HEIGHT }}} style="width: 100%; height: 100%"></canvas>
+	</div>

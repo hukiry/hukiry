@@ -1,0 +1,117 @@
+🔧 一、准备工具
+
+	apktool
+	用于反编译/回编译 APK 的资源文件和 smali 代码。
+	下载地址：https://ibotpeaches.github.io/Apktool/
+
+	Java JDK
+	提供 jarsigner 或 apksigner 进行签名。
+
+	Android SDK Build-tools（可选）
+	提供 zipalign 和 apksigner 工具。
+
+	反编译 Java 代码工具（如果要看逻辑，不止 smali）
+
+	jadx-gui（查看 Java 源码，方便理解逻辑）
+
+	修改实际执行代码时仍需改 smali。
+
+📦 二、反编译 APK
+	apktool d app.apk -o app_src
+
+
+	说明：
+
+	d = decode 反编译
+
+	app.apk = 目标 APK
+
+	-o app_src = 输出目录
+
+	此时 app_src 目录结构大概是：
+
+	app_src/
+	 ├─ AndroidManifest.xml
+	 ├─ smali/   (smali代码)
+	 ├─ res/     (资源文件)
+	 └─ ...
+
+✏️ 三、修改代码
+
+	修改 Smali 代码
+
+	APK 的逻辑在 smali/ 文件夹下，每个 .smali 对应一个 Java 类。
+
+	可以用 Notepad++ / VS Code 打开搜索要改的类。
+
+	例如，找到某个方法：
+
+	const-string v0, "Hello"
+
+
+	改成：
+
+	const-string v0, "World"
+
+
+	修改资源文件
+
+	在 res/ 里可以改布局 XML、图片等。
+
+	修改 Manifest
+
+	AndroidManifest.xml 可改权限、Activity 配置等。
+
+🔨 四、重新打包
+
+	修改完成后回编译：
+
+	apktool b app_src -o new_app_unsigned.apk
+
+
+	输出：new_app_unsigned.apk（未签名）
+
+🔑 五、APK 签名
+
+	Android 要求安装的 APK 必须签名。
+
+	方式1：使用 apksigner（推荐）
+	# 先生成一个测试签名（只需要一次）
+	keytool -genkey -v -keystore mykey.keystore -alias mykey -keyalg RSA -keysize 2048 -validity 10000
+
+	# 签名
+	apksigner sign --ks mykey.keystore --ks-key-alias mykey new_app_unsigned.apk
+
+
+	签完后生成 new_app_unsigned.apk（此时已可安装）。
+
+	方式2：使用 jarsigner（旧方法）
+	jarsigner -verbose -keystore mykey.keystore new_app_unsigned.apk mykey
+
+📏 六、优化对齐（可选）
+
+	Google 要求 APK 对齐以提升运行效率：
+
+	zipalign -v 4 new_app_unsigned.apk new_app_signed.apk
+
+
+	最终产物：new_app_signed.apk → 可以直接安装到设备。
+
+
+
+
+C:\Users\<你的用户名>\AppData\Local\Android\Sdk\build-tools\<版本号>\apksigner.exe
+C:\Users\<你的用户名>\AppData\Local\Android\Sdk\build-tools\<版本号>\zipalign.exe
+
+| 文件                            | 作用         | 说明                    |
+| ----------------------------- | ---------- | --------------------- |
+| `tools/build-tools/apksigner` | APK 签名工具   | 从 SDK Build-tools 下复制 |
+| `tools/build-tools/zipalign`  | APK 对齐优化工具 | 同上复制                  |
+
+
+1. 反编译
+	java -jar tools/apktool/apktool.jar d app.apk -o workspace/app_src
+2. 回编译
+	java -jar tools/apktool/apktool.jar b workspace/app_src -o workspace/new_app_unsigned.apk
+3. 签名
+	tools/build-tools/apksigner sign --ks mykey.keystore workspace/new_app_unsigned.apk

@@ -1,0 +1,10 @@
+
+1、APP的icon图标
+2、打包好的APP.ipa
+3、Plist文件
+4、cer证书
+
+
+地址为svn地址
+访问地址：itms-services://?action=download-manifest&url=https://192.168.188.235/testPlist.plist
+将访问地址生成二维码
