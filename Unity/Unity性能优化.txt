@@ -1,0 +1,10 @@
+
+UI进度条优化：
+	使用 Rect mask  可以降底2个 Batches，用left 和 自己obj.width 计算进度值
+
+
+粒子特效优化：尽量用Off-screen-particles插件，可以降到很多性能。不要使用 mask写法 和 噪音noise
+shader的精度尽量用： half 或 fixed, 可以减少大量内存
+纹理格式压缩：尽量采用ASTC6X6 或 ASTC8X8，可以避免内存消耗
+抗锯齿设置：尽量采用MSAA x2 或 FXAA ,可以减少纹理内存的增加
+

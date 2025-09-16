@@ -1,0 +1,41 @@
+
+1，下载地址：https://nodejs.org/en/download
+2，配置-用户变量
+	NODE_PATH=D:\Program Files\nodejs
+
+3，在安装目录新建目录 node_global, node_cache
+
+4，cmd窗口配置
+	npm config set prefix node_global
+	npm config set cache node_cache
+
+5, 配置-系统Path变量
+	Path=D:\Program Files\nodejs\node_cache
+	Path=D:\Program Files\nodejs\node_global
+
+6，设置国内镜像
+	npm config set registry https://registry.npmmirror.com
+
+7，安装 typescript
+	npm install -g typescript
+
+8，安装 web框架模块
+	npm install express
+
+一，npm命令行
+	0，初始化一个项目
+		npm init
+	1，安装node_modules 
+		npm install
+	2，清除 npm 缓存
+		npm cache clean --force
+	3，配置库下载路径
+		npm config set registry https://registry.npm.taobao.org
+		npm config set registry https://registry.npmmirror.com
+		npm config set registry https://registry.npmjs.org/
+	4，更新库版本
+		npm update
+	5，版本获取
+		npm version
+	6，运行
+		npm run dev/server

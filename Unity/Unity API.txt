@@ -1,0 +1,240 @@
+ 
+
+C# 
+	Directory.Delete(string, true) 移除指定的目录，会自动删除目录下的所有文件
+	Directory.Move(string,string) 移动到目标目录，目标目录不能存在
+
+PrefabUtility.InstantiatePrefab(), 载入预制件到场景
+PrefabUtility.LoadPrefabContents() 动态刷新预制件
+PrefabUtility.SaveAsPrefabAsset(), 将场景对象保存为预制件,配合以上使用
+
+组件编辑
+UnityEditorInternal.ComponentUtility.MoveComponentUp()
+UnityEditorInternal.ComponentUtility.MoveComponentDown()
+
+访问 ProjectSettings 目录下的文件
+UnityEditorInternal.InternalEditorUtility.LoadSerializedFileAndForget();
+UnityEditorInternal.InternalEditorUtility.SaveToSerializedFileAndForget()
+
+编辑正确用法
+using (new EditorGUI.DisabledGroupScope(true)) 禁用后面的布局
+using (new EditorGUILayout.HorizontalScope())
+{
+    GUILayout.Button("Play")
+}
+
+
+
+编辑器，勾选或取消菜单
+Menu.SetChecked("Tools/testStat", !Menu.GetChecked("Tools/testStat"))
+
+Mesh.UploadMeshData(true) 表示将 mesh在.NET托管堆中的byte[]清空，不然内存就双份
+
+AssetPreview 获取模型缩略图
+
+ab资源加载，shader显示开发
+-force-gles20    
+
+收集依赖项
+EditorUtility.CollectDependencies()
+
+保存Asset数据
+EditorUtility.SetDirty()
+
+
+get 和 post
+public WWW(string url)
+{
+    _uwr = UnityWebRequest.Get(url);
+    _uwr.SendWebRequest();
+}
+
+public WWW(string url, WWWForm form)
+{
+    _uwr = UnityWebRequest.Post(url, form);
+    _uwr.chunkedTransfer = false;
+    _uwr.SendWebRequest();
+}
+
+EditorPrefs.GetString("JdkPath", ""); 获取JDK 路径
+EditorPrefs.GetString("AndroidSdkRoot", ""); 获取 SDK 路径
+EditorPrefs.GetString("AndroidNdkRoot", ""); 获取 NDK 路径
+
+
+设置脚本图标
+	public static void SetScriptIcon<T>(string iconName) where T : UnityEngine.Object
+	{
+		var tex = EditorGUIUtility.FindTexture(iconName);
+		if (tex)
+		{
+			var obj = HukiryToolEditor.GetAssetObject<MonoScript>(typeof(T).Name);
+			typeof(EditorGUIUtility).InvokeMember("SetIconForObject", BindingFlags.InvokeMethod | BindingFlags.Static | BindingFlags.NonPublic, null, null, new object[2] {
+				obj,
+				tex
+			});
+		}
+	}
+
+ContentSizeFitter 组件
+	《1》 需要延时一帧刷新才有效  
+	《2》 lua中使用需要查看 LuaCoroutine.cs
+
+UI渲染部分：
+	预览渲染：UnityEditor.PreviewRenderUtility
+		PreviewRenderUtility.camera 		--预览相机
+		previewRenderUtility.AddSingleGO(previewGameObject); --添加预览GameObject
+
+		重载方法： OnInteractivePreviewGUI(Rect r, GUIStyle background)
+		previewRenderUtility.BeginPreview(r, background); 开始预览
+		启动预览的对象
+		PreviewRenderUtility.camera.Render();
+		关闭预览的对象
+		previewRenderUtility.EndPreview()； 结束预览
+		GUI.DrawTexture(r, previewTexture, ScaleMode.StretchToFill, false);绘制预览图
+
+		Event使用:
+			if (e.type == EventType.MouseDown && e.button == 0)
+			{
+				...
+				e.Use();
+			}
+		代码实例：
+			void OnInteractivePreviewGUI(Rect r, GUIStyle background){
+				if (Event.current.type == EventType.Repaint) { //重绘事件
+						blitCamera.targetTexture = target;
+						Graphics.DrawMesh( blitQuad, Vector3.zero, Quaternion.identity, material, 7, blitCamera );
+						blitCamera.Render();
+						blitCamera.targetTexture = null;
+				}
+			}
+
+	Canvas.willRenderCanvases 画布渲染事件委托
+	Graphic.CanvasRenderer  UI网格渲染
+
+Unity特性部分
+	[InitializeOnLoadMethod] 标记在方法上（每次编译完成执行此方法）
+	[InitializeOnLoad] 标记在类上（每次编译完成执行静态构造函数）
+	[CanEditMultipleObjects] 支持多对象编辑： 标记在类上
+	[CustomEditor] 自定义编辑Gui： 标记在类上
+	[CustomPreview] 自定义编辑预览视图，此类需继承 ObjectPreview： 标记在类上
+	[CustomPropertyDrawer] 自定义属性绘制,自定义字段上的特性时用到： 标记在类上
+	[MenuItem] 菜单：标记在静态方法上
+	[SettingsProvider] 首选设置面板上：标记在静态方法上
+	[PostProcessBuild(999)]编辑模式下执行:标记在方法上，平台打包
+	[Callbacks.DidReloadScripts]   //Unity每次编译完后，都会被调用一次  ，写在方法上
+
+	[RuntimeInitializeOnLoadMethod]  运行时初始化方法：标记在静态方法上
+	[ExecuteAlways] 播放模式和正在编辑时执行:标记在类上
+	[ExecuteInEditMode] 编辑模式下执行:标记在类上
+	[DisallowMultipleComponent] 在一个对象上不允许添加多个相同组件:标记在类上
+	[CreateAssetMenu] 创建一个Asset文件菜单:标记在类上
+	[ColorUsage] 颜色可选：标记在字段上
+	[GradientUsage] 渐变颜色：标记在字段上
+	[BeforeRenderOrder] 渲染前调用： 标记在方法上
+	[AddComponentMenu] 添加组件到菜单上：标记在类上
+	[Header] 添加主标题：标记在字段上
+	[HelpURL] 添加帮助链接：标记在类上
+	[HideInInspector] 隐藏字段：标记在字段上
+	[DefaultValue] 默认值：标记在参数上
+	[Multiline] 多行编辑：标记在字段上
+	[PropertyAttribute] 用于创建自定义属性
+	[Range] 区间值：标记在字段上
+	[RequireComponent] 自动添加多个组件：标记在类上
+	[FormerlySerializedAs] 重命名此字段时，不丢失序列化的值：标记在字段上
+	[SerializeField] 序列化字段：标记在字段上
+	[Space] 空间布局：标记在字段上
+	[TextArea] 字符串行区域编辑：标记在字段上
+	[Tooltip] 提示信息：标记在字段上
+	[DrawGizmo(GizmoType.Selected)]场景绘制：标记在静态方法上
+
+	[SyncVar]    	用于标识序列化变量,实现变量同步
+	[Client]        表示只能在客户端调用
+	[ClientCallBack]表示客户端执行的回调
+	[Command]  		表示客户端向服务端发送的命令,在服务端执行
+	[ClientPrc]  	表示服务端向客户端发送的命令,在客户端执行
+
+
+加载系统字体
+	Resources.GetBuiltinResource<Font>("Arial.ttf")
+
+刘海屏幕的支持：仅Unity2019.4, 2020.3，2021.3
+	Screen.cutouts 凹口周围的包围盒列表
+
+给Unity 默认资源上添加菜单
+  [MenuItem("CONTEXT/Material|Texture|自定义|TrueTypeFontImporter|SpriteAtlas|MonoImporter/[名称]", false)]
+  static void CreateFontAsset(MenuCommand command)
+  {TrueTypeFontImporter importer = command.context as TrueTypeFontImporter;}
+
+打开设置服务
+	SettingsService.OpenProjectSettings("Project/Editor");
+
+
+一，GUILayout.Toolbar  页签切换
+	int tabIndex = GUILayout.Toolbar(data.tabIndex, tabNames);
+	if (tabIndex != data.tabIndex)
+	{
+	    data.tabIndex = tabIndex;
+	}
+
+二，手柄操作编辑
+	Handles.SphereHandleCap 		球手柄
+	Handles.CubeHandleCap 		矩形手柄
+	Handles.CylinderHandleCap 	圆柱手柄
+	HandleUtility.DistanceToCircle 鼠标指针到圆圈的距离
+	移动手柄
+	Handles.FreeMoveHandle(position, rotation, handleSize * 0.15f, new Vector3(xSnap, ySnap, zSnap), Handles.RectangleHandleCap);
+	箭头滑动
+	Handles.Slider(position, rotation * direction, handleSize, Handles.ArrowHandleCap, snap)
+	Bezier计算
+	Handles.MakeBezierPoints( start, end, startTangent, endTangent, pointsCount )
+
+三，场景坐标绘制
+	using (var check = new EditorGUI.ChangeCheckScope())//检查用的改变
+	{
+	    var p = Handles.PositionHandle(points[i], Quaternion.identity);//绘制坐标
+	    if (check.changed)
+	    {
+	        Undo.RecordObject(curveRenderer, "Changed Curve Position");
+	    }
+	}
+
+四，检测面板加载
+	 using (var check = new EditorGUI.ChangeCheckScope ()) {
+       isFoldout = EditorGUILayout.InspectorTitlebar (isFoldout, curTarget);
+        if (isFoldout) {
+            this.CreateCachedEditor (curTarget, null, ref newEditor);
+            newEditor.OnInspectorGUI ();
+        }
+        if (check.changed) SceneView.RepaintAll ();
+    }
+
+iOS加载 AssetBundle 和 UnityWebRequest 区别
+	 AssetBundle ： 路径前不需要加 "file：//"
+	 UnityWebRequest : 路径前必须要加  "file：//"
+
+
+显示选择窗口
+private void ShowPickWindow()
+{
+	int _controlID = EditorGUIUtility.GetControlID(FocusType.Passive);
+	EditorGUIUtility.ShowObjectPicker<TextAsset>(null, false, "t:TextAsset", _controlID);
+}
+
+
+创建资源特性
+	[CreateAssetMenu(menuName = "Friendly Cactus/Camera/Create Config")]
+	public class CameraConfig : ScriptableObject
+	[FilePath("GameViewSizes.asset", FilePathAttribute.Location.PreferencesFolder)]
+	public class CameraConfig：ScriptableSingleton<CameraConfig>
+
+在Inspector面板，显示AssetInspector文件
+	Editor.CreateEditor(target, Type.GetType("UnityEditor.{自定义}, UnityEditor" ) );
+
+手机振动
+	Handheld.Vibrate()
+
+iOS，不显示Indicator
+	Handheld.SetActivityIndicatorStyle(UnityEngine.iOS.ActivityIndicatorStyle.DontShow);
+
+启用 SRP Batcher
+	GraphicsSettings.useScriptableRenderPipelineBatching = true;

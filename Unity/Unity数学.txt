@@ -1,0 +1,98 @@
+
+
+点乘：
+	U和V 的点积等于向量U的长度乘以向量V的长度，再乘以他们的夹角的余弦。
+	U·V=|U|*|V|*cos<u,v>
+	U.x*V.x+U.y*V.y=|U|*|V|*cos
+	|U|为向量U的模长
+	|V|为向量V的模长
+
+	模长计算：Mathf.Sqrt(a.x * a.x + a.y * a.y + a.z * a.z); 
+
+	1，如果两向量之间的夹角等于=90度，那么他们的点乘结果为0；
+	2，如果两向量之间的夹角小于<90度，那么他们的点乘结果大于>0；
+	3，如果两向量之间的夹角大于>90度，那么他们的点乘结果小于<0；
+	Vector3.Dot(target.position - my.position, my.forward);
+	
+叉乘：
+	2D叉乘计算
+		设 a=(x,y) 	 b=(x,y)
+		解 z = axb = |a|*|b|*sin<a,b> = a.x * b.y - a.y * b.x
+		1, z值如果>0；逆时针旋转，左侧
+		2, z值如果<0；顺时针旋转，右侧
+		3, z值如果=0；共线，正前方或正后方
+
+	3D叉乘计算
+		角色向量为forward，目标向量为targetDir， rotateAxis = Cross(forward, targetDir)
+		叉乘结果与世界上方向点乘，判断符号 dot = Vector3.Dot(rotateAxis, Vector3.up);
+		1，若dot 点乘结果 > 0：目标在角色左侧
+		2，若dot 点乘结果 < 0：目标在角色右侧
+		3，若dot 点乘结果 = 0：目标和角色共线，正前方或正后方
+
+角度：	
+	1,角度计算
+		Mathf.Acos(Mathf.Clamp(Dot(from.normalized, to.normalized), -1f, 1f)) * 57.29578f;点乘的反余弦的弧度值转换成角度
+	2,xy的比值
+		Mathf.Atan2(y,x)* Mathf.Rad2Deg  弧度值转换成角度
+	3,单位圆坐标
+		 y = Mathf.Sin(弧度值), x =  Mathf.Cos(弧度值) [弧度值=Mathf.PI]
+	4,两个向量的夹角
+		Vector3.Angle(target.position - my.position, my.forward);
+
+反射：适合用于桌球，shader的镜面反射
+	Vector3 reflect= Vector3.Reflect(target.position - my.position, my.forward); //结果为反射位置
+	入射方向：target.position - my.position
+	法线垂直于平面
+
+投影：
+	向量 a在 b方向上的投影长度为：proj= a.b/|b|
+
+	Vector3 project = Vector3.Project(target.position - my.position, my.forward);
+	//投影向量：投影到法线上，返回在法线上的长度，可以计算法线和目标的位置
+						
+					-
+				 -  .
+			  -     .
+		   -        .
+	-------------------------------------
+	
+坐标：
+	1，转换世界UV坐标						2，屏幕坐标
+				  [1, 1] 	 			  [0, 0]		
+			┏───────┓  						 ┏───────┓ 
+			│       │  						 │       │
+			│       │  						 │       │
+			┗───────┛						 ┗───────┛	
+		 [0, 0] 				 				   [1, 1]
+	   [x,y,z,w]=(0,0,1,1)
+
+
+
+		--------------如图世界网格uv规则，顺时针方向旋转
+		   uv2(x=0,w=1)	  	     uv3(z=1,w=1)	 
+			      ┏──────────────────┓
+			      │             	 │
+			      │             	 │
+			      │             	 │
+			      │             	 │
+			      │             	 │
+			      │             	 │
+			      ┗──────────────────┛
+		   uv1(x=0,y=0)		     uv4(z=1,y=0)	
+
+		--------------如图UI网格uv规则，逆时针方向旋转
+		  uv1(x=0, y=0)	  	          	uv4(z=1, y=0)	 
+			      ┏──────────────────────┓
+			      │                  	 │
+			      │                  	 │
+			      │                  	 │
+			      │                  	 │
+			      │                  	 │
+			      │                  	 │
+			      │                  	 │
+			      │                  	 │
+			      ┗──────────────────────┛
+		  uv2(x=0, w=1)		          	uv3(z=1, w=1)	
+
+
+

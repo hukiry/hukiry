@@ -1,0 +1,56 @@
+
+
+一，错误：GLSL link error: The number of vertex shader storage blocks (1) is greater than the maximum number allowed (0).
+   解决：多个摄像机导致，需要将相机改成延迟渲染; 部分设备要使用vulkan API
+
+二，空指针错误：导致内存泄漏
+   空指针错误代号：signal 11 (SIGSEGV), code 1 (SEGV_MAPERR）, fault addr 00000003
+   SIGSEGV: 进程执行了一个无效的内存引用。
+   SEGV_MAPERR: 表示堆栈映射错误。
+
+
+三，Unity打包il2ccp错误解决
+   1，修复如下：
+      计算机\HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Control\Lsa\FipsAlgorithmPolicy
+      将enable设置为0 即可。
+   2，使用HybridCLR插件会遇到以下错误：
+
+      Exception: D:\Program Files\Unity 2019.4.40f1\Editor\Data\il2cpp\build/deploy/net471/UnityLinker.exe did not run properly!
+
+      Failed running "D:\Program Files\Unity 2019.4.40f1\Editor\Data\il2cpp\build/deploy/net471/UnityLinker.exe" @D:/UnityWork/il2cpptestAndroid/Temp/StagingArea/assets/bin/Data/Managed/response.rsp 
+
+      stdout:
+      Fatal error in Unity CIL Linker
+      System.InvalidOperationException: ��ʵ�ֲ��� Windows ƽ̨ FIPS ��֤�ļ����㷨��һ���֡�
+         �� System.Security.Cryptography.SHA1Managed..ctor()
+         �� Mono.Cecil.CryptoService.ComputeHash(ByteBuffer[] buffers)
+         �� Mono.Cecil.MetadataBuilder.ComputeDeterministicMvid()
+         �� Mono.Cecil.ModuleWriter.Write(ModuleDefinition module, Disposable`1 stream, WriterParameters parameters)
+         �� Mono.Cecil.ModuleWriter.WriteModule(ModuleDefinition module, Disposable`1 stream, WriterParameters parameters)
+         �� Mono.Cecil.ModuleDefinition.Write(String fileName, WriterParameters parameters)
+         �� Mono.Linker.Steps.OutputStep.WriteAssembly(AssemblyDefinition assembly, String directory, WriterParameters writerParameters)
+         �� Unity.Linker.Steps.UnityOutputStep.WriteAssembly(AssemblyDefinition assembly, String directory, WriterParameters writerParameters)
+         �� Mono.Linker.Steps.OutputStep.OutputAssembly(AssemblyDefinition assembly)
+         �� Mono.Linker.Steps.BaseStep.Process(LinkContext context)
+         �� Mono.Linker.Pipeline.ProcessStep(LinkContext context, IStep step)
+         �� Unity.Linker.UnityPipeline.ProcessStep(LinkContext context, IStep step)
+         �� Mono.Linker.Pipeline.Process(LinkContext context)
+         �� Unity.Linker.UnityDriver.Run()
+         �� Unity.Linker.UnityDriver.RunDriverWithoutErrorHandling()
+         �� Unity.Linker.UnityDriver.RunDriver()
+      stderr:
+
+      UnityEditorInternal.Runner.RunProgram (UnityEditor.Utils.Program p, System.String exe, System.String args, System.String workingDirectory, UnityEditor.Scripting.Compilers.CompilerOutputParserBase parser) (at <8bd319d7641c4ce9a5a11f88deb2e752>:0)
+      UnityEditorInternal.Runner.RunManagedProgram (System.String exe, System.String args, System.String workingDirectory, UnityEditor.Scripting.Compilers.CompilerOutputParserBase parser, System.Action`1[T] setupStartInfo) (at <8bd319d7641c4ce9a5a11f88deb2e752>:0)
+      UnityEditorInternal.AssemblyStripper.RunAssemblyLinker (System.Collections.Generic.IEnumerable`1[T] args, System.String& out, System.String& err, System.String linkerPath, System.String workingDirectory) (at <8bd319d7641c4ce9a5a11f88deb2e752>:0)
+      UnityEditorInternal.AssemblyStripper.StripAssembliesTo (System.String outputFolder, System.String& output, System.String& error, System.Collections.Generic.IEnumerable`1[T] linkXmlFiles, UnityEditorInternal.UnityLinkerRunInformation runInformation) (at <8bd319d7641c4ce9a5a11f88deb2e752>:0)
+      UnityEditorInternal.AssemblyStripper.RunAssemblyStripper (UnityEditorInternal.UnityLinkerRunInformation runInformation) (at <8bd319d7641c4ce9a5a11f88deb2e752>:0)
+      UnityEditorInternal.AssemblyStripper.StripAssemblies (System.String managedAssemblyFolderPath, UnityEditorInternal.BaseUnityLinkerPlatformProvider unityLinkerPlatformProvider, UnityEditorInternal.IIl2CppPlatformProvider il2cppPlatformProvider, UnityEditor.RuntimeClassRegistry rcr, UnityEditor.ManagedStrippingLevel managedStrippingLevel) (at <8bd319d7641c4ce9a5a11f88deb2e752>:0)
+      UnityEditorInternal.IL2CPPBuilder.Run () (at <8bd319d7641c4ce9a5a11f88deb2e752>:0)
+      UnityEditorInternal.IL2CPPUtils.RunIl2Cpp (System.String tempFolder, System.String stagingAreaData, UnityEditorInternal.IIl2CppPlatformProvider platformProvider, System.Action`1[T] modifyOutputBeforeCompile, UnityEditor.RuntimeClassRegistry runtimeClassRegistry) (at <8bd319d7641c4ce9a5a11f88deb2e752>:0)
+      UnityEditor.Android.PostProcessor.Tasks.RunIl2Cpp.Execute (UnityEditor.Android.PostProcessor.PostProcessorContext context) (at <dd2e71f8d45046b88d6d3169a8084aec>:0)
+      UnityEditor.Android.PostProcessor.PostProcessRunner.RunAllTasks (UnityEditor.Android.PostProcessor.PostProcessorContext context) (at <dd2e71f8d45046b88d6d3169a8084aec>:0)
+      UnityEditor.Android.PostProcessAndroidPlayer.PostProcess (UnityEditor.BuildTarget target, System.String stagingAreaData, System.String stagingArea, System.String playerPackage, System.String installPath, System.String companyName, System.String productName, UnityEditor.BuildOptions options, UnityEditor.RuntimeClassRegistry usedClassRegistry, UnityEditor.Build.Reporting.BuildReport report) (at <dd2e71f8d45046b88d6d3169a8084aec>:0)
+      UnityEditor.Android.AndroidBuildPostprocessor.PostProcess (UnityEditor.Modules.BuildPostProcessArgs args, UnityEditor.BuildProperties& outProperties) (at <dd2e71f8d45046b88d6d3169a8084aec>:0)
+      UnityEditor.PostprocessBuildPlayer.Postprocess (UnityEditor.BuildTargetGroup targetGroup, UnityEditor.BuildTarget target, System.String installPath, System.String companyName, System.String productName, System.Int32 width, System.Int32 height, UnityEditor.BuildOptions options, UnityEditor.RuntimeClassRegistry usedClassRegistry, UnityEditor.Build.Reporting.BuildReport report) (at <8bd319d7641c4ce9a5a11f88deb2e752>:0)
+      UnityEngine.GUIUtility:ProcessEvent(Int32, IntPtr)
