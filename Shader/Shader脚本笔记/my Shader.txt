@@ -1,0 +1,473 @@
+
+
+lelefeng1992@gmail.com 
+
+自己在学习过程中看到的一些不错的网站、博客的收集整理，以后发现其他的好网站也会贴到这里
+
+http://candycat1992.github.io/ 
+《UNITY shader入门精要》作者冯乐乐的独立博客，刚开始学shader的时候多亏了看乐乐女神的博客学到了很多东西
+
+http://blog.csdn.net/candycat1992 
+冯乐乐的CSDN博客
+
+
+
+
+
+
+
+UnityEditorInternal.InternalEditorUtility.OpenFileAtLineExternal( AssetDatabase.GetAssetPath( shader ), 1 );
+
+
+//shader中自定义特性
+#ifdef KEYWORD1
+            o.Albedo = float3(0,0,0); #else o.Albedo = float3(1,1,1);
+#endif 
+using UnityEngine; using System.Collections; public class ShaderKeywordTest : MonoBehaviour
+{ 
+	public Material mat; 
+	void OnEnable()
+    {
+        mat.EnableKeyword("KEYWORD1");//启动shader中的特性
+    }
+	void OnDisable()
+    {
+        mat.DisableKeyword("KEYWORD1");
+    }
+}
+
+Tags（标签）标记了着色器的一些特性。
+常用的Tag有：
+RenderType：渲染类型，常用就是Opaque（不透明）和Transparent（透明）。
+IgnoreProjector：是否忽略投影器，True or False。
+ForceNoShadowCasting：是否强制无阴影，True or False。
+Queue：渲染队列，内置值Background=1000,Geometry=2000,AlphaTest=2450,Transparent=3000,Overlay=4000，但是并不限于这些值，你可以填写自己的值，或者写成"Queue"="Transparent+10"也是可以的。
+LOD是Level of Details的缩写，表示着色器的细节层级，高于Unity的最大LOD（Quality Settings里设置）的shader将不可用。在调低画质时，可以根据这个值舍弃掉一部分shader。
+
+#pragma surface surf Lambert
+这一行表明我们使用的是一个表面着色器，方法名称是surf，光照模型是Lambert。
+
+[Space(10)] : 这个是指在面板上留10单位的空间展示此属性。
+
+[Enum(CullMode)] : 这里就表明了这个变量是属于CullMode的枚举变量，在最后的默认值为0，就是CullMode.Off这个值。我们就可以根据这个枚举来进行渲染剔除类型的控制
+
+[KeywordEnum(None, Add, Multiply)] _Overlay("Overlay mode", Float) = 0	   //枚举类型
+[Toggle] _Invert("Invert color?", Float) = 0	  //复选框
+[Enum(CullMode)]枚举背景剔除模式
+ [NoScaleOffset]隐藏贴图的缩放和偏移属性 
+ [HideInInspector]可以隐藏shader定义的任何属性
+ [Enum(UV0,0,UV1,1)] 
+ 
+CustomEditor "Shader_softrim_dissolve"	//指定编辑文件夹下的C#脚本名 
+ 
+ 
+ 
+ToggleDrawer	把一个类型为float的属性显示为一个开关，它的值要么是0要么是1。当选中它时，Unity还会设置一个名为大写属性名_ON（可以自定义名字）的shader feature（需要在shader里使用”#pragma shader_feature”来定义它），我们可以在shader里用过#if、#ifdef或者#if defined关键词来判断它当前是否被开启。
+EnumDrawer	把一个类型为float的属性显示为一个下拉列表。可以使用UnityEngine.Rendering命名空间下的各种状态来设置对应的渲染状态，例如ZWrite、ZTest、Blend等。据实验推测，这个值不可以随便定义，老老实实用UnityEngine.Rendering。
+KeywordEnum	和EnumDrawer类似，也会把一个类型为float的属性显示为一个下拉列表，但不同的是它会定义一组shader keyword（需要在shader里使用”#pragma multi_compile”来定义它们）。这些keyword的名字是大写属性名_枚举名。同样，我们可以在shader里用过#if、#ifdef或者#if defined配合#elif来判断当前选择是哪个keyword。最多同时支持9个keywords。
+PowerSliderDrawer	显示一个非线性响应的滑动条，其中PowerSliderDrawer中的参数指定了底数，然后我们再根据Range()来指定范围。其实简单说来就是滑动条上的数值不再是均匀变化了，而是xslider进行变化，但我们在shader里还是可以直接访问到一个float数值。 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+shader中的代码
+{
+shader预处理	
+Shader "Custom/Material Property Drawer Example"
+{
+    Properties
+    {
+        // Header creates a header text before the shader property.
+        [Header(Material Property Drawer Example)]
+        // Space creates vertical space before the shader property.
+        [Space]
+
+        _MainTex ("Main Tex", 2D) = "white" {}
+        _SecondTex ("Second Tex", 2D) = "white" {}
+
+        // Large amount of space
+        [Space(50)]
+
+        // Toggle displays a **float** as a toggle. 
+        // The property value will be 0 or 1, depending on the toggle state. 
+        // When it is on, a shader keyword with the uppercase property name +"_ON" will be set, 
+        // or an explicitly specified shader keyword.
+        [Toggle] _Invert ("Invert color?", Float) = 0	  //这里的Toggle 为复选框，值为0或1
+
+        // Will set "ENABLE_FANCY" shader keyword when set
+        [Toggle(ENABLE_FANCY)] _Fancy ("Fancy?", Float) = 0
+
+        // Enum displays a popup menu for a **float** property. 
+        // You can supply either an enum type name 
+        // (preferably fully qualified with namespaces, in case there are multiple types), 
+        // or explicit name/value pairs to display. 
+        // Up to **7** name/value pairs can be specified
+        [Enum(UnityEngine.Rendering.BlendMode)] _SrcBlend ("Src Blend Mode", Float) = 1
+        [Enum(UnityEngine.Rendering.BlendMode)] _DstBlend ("Dst Blend Mode", Float) = 1
+        [Enum(Off, 0, On, 1)] _ZWrite ("ZWrite", Float) = 0
+        [Enum(UnityEngine.Rendering.CompareFunction)] _ZTest ("ZTest", Float) = 0
+        [Enum(UnityEngine.Rendering.CullMode)] _Cull ("Cull Mode", Float) = 1
+
+        // KeywordEnum displays a popup menu for a **float** property, and enables corresponding shader keyword. 
+        // This is used with "#pragma multi_compile" in shaders, to enable or disable parts of shader code. 
+        // Each name will enable "property name" + underscore + "enum name", uppercased, shader keyword. 
+        // Up to **9** names can be provided.
+        [KeywordEnum(None, Add, Multiply)] _Overlay ("Overlay mode", Float) = 0		 
+
+        // PowerSlider displays a slider with a non-linear response for a Range shader property.
+        // A slider with 3.0 response curve
+        [PowerSlider(3.0)] _Shininess ("Shininess", Range (0.01, 1)) = 0.08
+
+    }
+    SubShader
+    {
+        Tags { "Queue"="Transparent" "RenderType"="Transparent" }
+        Blend [_SrcBlend] [_DstBlend]
+        ZWrite [_ZWrite]
+        ZTest [_ZTest]
+        Cull [_Cull]
+
+        Pass
+        {
+            CGPROGRAM
+            // Need to define _INVERT_ON shader keyword
+            #pragma shader_feature _INVERT_ON
+            // Need to define _INVERT_ON shader keyword
+            #pragma shader_feature ENABLE_FANCY
+            // No comma between features  枚举的定义
+            #pragma multi_compile _OVERLAY_NONE _OVERLAY_ADD _OVERLAY_MULTIPLY
+
+            #pragma vertex vert
+            #pragma fragment frag
+
+            #include "UnityCG.cginc"
+
+            sampler2D _MainTex;
+            float4 _MainTex_ST;
+            sampler2D _SecondTex;
+            float4 _SecondTex_ST;
+            float _Shininess;
+
+            struct appdata
+            {
+                float4 vertex : POSITION;
+                float2 uv : TEXCOORD0;
+            };
+
+            struct v2f
+            {
+                float4 uv : TEXCOORD0;
+                float4 vertex : SV_POSITION;
+            };
+
+            v2f vert (appdata v)
+            {
+                v2f o;
+                o.vertex = mul(UNITY_MATRIX_MVP, v.vertex);
+                o.uv.xy = TRANSFORM_TEX(v.uv, _MainTex);
+                o.uv.zw = TRANSFORM_TEX(v.uv, _SecondTex);
+                return o;
+            }
+
+            fixed4 frag (v2f i) : SV_Target
+            {
+                // sample the texture
+                fixed4 col = tex2D(_MainTex, i.uv.xy);
+
+                // Use #if, #ifdef or #if defined
+                #if _INVERT_ON
+                col = 1 - col;
+                #endif
+
+                // Use #if, #ifdef or #if defined
+                #if ENABLE_FANCY
+                col.r = 0.5;
+                #endif
+
+                fixed4 secCol = tex2D(_SecondTex, i.uv.zw);
+
+                #if _OVERLAY_ADD
+                col += secCol;
+                #elif _OVERLAY_MULTIPLY
+                col *= secCol;
+                #endif
+
+                col *= _Shininess;
+
+                return col;
+            }
+            ENDCG
+        }
+    }
+}
+//径向模糊
+Shader "RadialBlur" {
+         Properties {
+                 _MainTex ("Base (RGB)", 2D) = "white" {}
+                 _fSampleDist("SampleDist", Float) = 1 //采样距离
+                 _fSampleStrength("SampleStrength", Float) = 2.2 //采样力度
+         }
+         SubShader {
+                 Pass {               
+                         ZTest Always  //深度测试
+						 Cull Off	//关闭剔除
+						 ZWrite Off //深度写入缓存区
+                         Fog { Mode off }  //关闭雾模式
+                         CGPROGRAM
+                         #pragma vertex vert
+                         #pragma fragment frag
+         
+                         #include "UnityCG.cginc"
+         
+                         struct appdata_t {
+                                 float4 vertex : POSITION;
+                                 float2 texcoord : TEXCOORD;
+                         };
+         
+                         struct v2f {
+                                 float4 vertex : POSITION;
+                                 float2 texcoord : TEXCOORD;
+                         };
+
+                         sampler2D _MainTex;//主纹理
+						 float4 _MainTex_ST;//纹理的缩放和偏移
+                         float _fSampleDist;
+                         float _fSampleStrength;
+
+                         v2f vert (appdata_t v)
+                         {
+                            v2f o;
+                            o.vertex = mul(UNITY_MATRIX_MVP, v.vertex);//输入顶点颜色
+                            o.texcoord = TRANSFORM_TEX(v.texcoord, _MainTex);//变换纹理坐标，加入缩放和偏移
+                            return o;
+                         }
+         
+
+                         half4 frag (v2f i) : SV_Target
+                         {                                
+                            //0.5,0.5屏幕中心
+                            float2 dir = float2(0.5, 0.5) - i.texcoord;//从采样中心到uv的方向向量 i.uv.xy-float2(0.5, 0.5)
+                            float4 color = tex2D(_MainTex,  i.texcoord); //主纹理的颜色 
+                            float4 sum = color; 
+                            for (int j = 0; j < 6; ++j)   // 6次采样的平均值 得到模糊纹理颜色
+                            {    
+                              sum += tex2D(_MainTex,  i.texcoord + 0.05 *(j+1) * _fSampleDist);    
+                            }  
+                            sum /= 7.0f;     //求均值
+
+							 //length(dir)计算所有坐标到中心点的距离 
+                            float t = saturate( length(dir) * _fSampleStrength);//越离采样中心近的地方，越不模糊  
+                            return lerp(color, sum, t); //颜色插值混合
+                            
+                         }
+                         ENDCG 
+                 }
+         } 
+         Fallback off
+ }
+
+
+//镂空，AlphaTest,纹理旋转，漫反射，高光
+Shader "deffuse_AlphaTest"
+{
+	Properties
+	{
+		_MainTex ("Texture", 2D) = "white" {}
+		_Specular ("_Specular", COLOR) = (1,1,1,1)//高光纹理
+		_goss("_goss",float)=20
+		_cout("_cout",Range(0,1))=0.5
+		_RotateSpeed("_RotateSpeed",Range(0,180))=1
+	}
+	SubShader
+	{
+		//Cull Off ZWrite Off ZTest Always
+		Tags{"Queue"="AlphaTest" "RenderType" = "Transparent" "IgnoreProjector" = "True"}//队列渲染，透明着色器，忽略阴影接受
+		Pass
+		{
+			Tags{"LightMode"="ForwardBase"}//向前灯光模式
+			
+			CGPROGRAM
+			#pragma vertex vert
+			#pragma fragment frag
+			//#pragma fragmentoption ARB_precision_hint_fastest  
+            #pragma multi_compile_fwdbase  
+			#pragma multi_compile_fwdadd
+			
+			#include "UnityCG.cginc"
+			#include "Lighting.cginc"
+
+			struct appdata//shader 加载时从Unity Meshrenderer组件中获取：顶点位置，法线，切线，顶点颜色，切线，纹理坐标
+			{
+				float4 vertex : POSITION;
+				float3 normal:NORMAL;
+				float2 uv : TEXCOORD0;
+				float3 tangment:TANGENT;
+			};
+
+			struct v2f
+			{
+				float2 uv : TEXCOORD0;
+				float4 vertex : SV_POSITION;
+				float3 norDir:NORMAL;
+				float3 lightDir:TEXCOORD1;
+				float4 worldPos:TEXCOORD2;
+				float3 tangment:TANGENT;
+
+			};
+			sampler2D _MainTex;
+			float4 _MainTex_ST;
+			float4 _Specular;
+			float _goss;
+			float _cout;
+			float _RotateSpeed;
+			v2f vert (appdata v)
+			{
+				v2f o;
+				o.vertex = mul(UNITY_MATRIX_MVP, v.vertex);//输出模型顶点到屏幕
+	
+				o.worldPos=mul(_Object2World,v.vertex);//世界顶点位置
+
+				o.lightDir=normalize(_WorldSpaceLightPos0-o.worldPos);//WorldSpaceLightDir(v.vertex) 灯光方向的计算
+
+				o.norDir=mul(v.normal,(float3x3)_World2Object);//世界法线
+
+				o.tangment=mul(_Object2World,v.tangment);//世界切线
+
+				o.uv=v.uv.xy*_MainTex_ST.xy+_MainTex_ST.zw;//等价于TRANSFORM_TEX(uv,tex) 纹理变换，xy缩放,zw偏移
+//-------------------------start 纹理旋转-----------------------------------------------------
+				float2 uv=o.uv.xy -float2(0.5,0.5); 
+				// _Time   是一个内置的float4时间，X是1/20，Y是1倍，Z是2倍，W是3倍           
+				// 旋转矩阵的公式是： COS() -  sin() , sin() + cos()     顺时针
+				//                    COS() +  sin() , sin() - cos()     逆时针     
+				float x=uv.x*cos(_RotateSpeed * _Time.y) - uv.y*sin(_RotateSpeed*_Time.y);
+
+				float y=uv.x*sin(_RotateSpeed * _Time.y) + uv.y*cos(_RotateSpeed*_Time.y);
+
+				uv = float2(x,y);
+
+				uv += float2(0.5,0.5);
+
+				o.uv=uv;
+//-------------------------end 纹理旋转-----------------------------------------------------
+
+
+				return o;
+			}
+			
+
+
+			fixed4 frag (v2f i) : SV_Target
+			{
+				fixed4 col = tex2D(_MainTex, i.uv);//主纹理颜色
+
+				clip(col.a-_cout);//镂空alpha计算 
+
+				fixed d=dot(i.norDir,i.lightDir)*0.5+0.5;//比较亮
+
+				fixed4 diff=_LightColor0*col*d;//漫反射光	 diff=L*color*dot(n,l);
+
+				fixed4 ambient=UNITY_LIGHTMODEL_AMBIENT*col;//环境光,	不乘以纹理颜色会白一点
+
+				
+				fixed3 viewDir = normalize(_WorldSpaceCameraPos-i.worldPos);  //WorldSpaceViewDir(v.vertex)视角方向
+                fixed h = normalize(viewDir + i.lightDir);  //半兰伯特计算
+                fixed4 spec= _LightColor0*col * pow(dot(i.norDir, h)*0.5+0.5, _goss) ;  //高光=灯光颜色*纹理颜色*（dot(n,h)的次方）
+
+				return diff+ambient+spec;//漫反射+环境光+高光
+			}
+			ENDCG
+		}
+	}
+}
+
+
+
+计算透明遮罩的方法
+{
+              if(f.texcoord.x<0.5 && f.texcoord.y>0.5)  
+                {  
+                    float2 r;  
+                    r.x=0.5-f.texcoord.x;  
+                    r.y=f.texcoord.y-0.5;  
+                    if(length(r)>_Radius)//以r.x、r.y为两直角边长度，计算斜边长度  
+                    {  
+                        return fixed4(1,1,1,0);  
+                    }  
+                    else  
+                    {  
+                        return color;  
+                    }  
+                }  
+                //左下方区域  
+                else if(f.texcoord.x<0.5 && f.texcoord.y<0.5)  
+                {  
+                    float2 r;  
+                    r.x=0.5-f.texcoord.x;  
+                    r.y=0.5-f.texcoord.y;  
+                    if(length(r)>_Radius)  
+                    {  
+                        return fixed4(1,1,1,0);  
+                    }  
+                    else  
+                    {  
+                        return color;  
+                    }  
+                }  
+                //右上方区域  
+                else if(f.texcoord.x>0.5 && f.texcoord.y>0.5)  
+                {  
+                    float2 r;  
+                    r.x=f.texcoord.x-0.5;  
+                    r.y=f.texcoord.y-0.5;  
+                    if(length(r)>_Radius)  
+                    {  
+                        return fixed4(1,1,1,0);  
+                    }  
+                    else  
+                    {  
+                        return color;  
+                    }  
+                }  
+                //右下方区域  
+                else if(f.texcoord.x>0.5 && f.texcoord.y<0.5)  
+                {  
+                    float2 r;  
+                    r.x=f.texcoord.x-0.5;  
+                    r.y=0.5-f.texcoord.y;  
+                    if(length(r)>_Radius)  
+                    {  
+                        return fixed4(1,1,1,0);  
+                    }  
+                    else  
+                    {  
+                        return color;  
+                    }  
+                }  
+}
+
+//纹理透明遮罩和溶解算法
+  half4 frag(v2f i) : COLOR
+ {
+	 //要开启混合透明，关闭深度写入，剔除背面，关闭雾，关闭灯光，使用透明队列
+	 fixed4 c = _Color * tex2D(_MainTex, i.uv);//主纹理
+	 fixed ca = tex2D(_MaskTex, i.uv).a;//遮罩纹理
+	 c.a *= ca >= _Progress ? 0 : 1;
+	 //如果遮罩纹理某个像素点的a通道大于指定值，那么对应主纹理的像素点透明，否则正常显示
+	 return c;
+ }
+
+}
+ 
+ 

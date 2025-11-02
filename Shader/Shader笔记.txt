@@ -1,0 +1,203 @@
+
+旋转公式
+	float2 tempuv = uv-0.5;
+	uv.x = tempuv.x * cos(u_time) - tempuv.y * sin(u_time);	    
+	uv.y = tempuv.x * sin(u_time) + tempuv.y * cos(u_time);
+
+环绕中心点旋转
+    float2(cos(u_time),sin(u_time))
+
+颜色叠加
+ 	p = smoothstep(x-0.1,x,y) - smoothstep(x,x+0.1,y)
+ 	(1.0 - p) * color1 + p * color2
+
+噪音绕乱
+	先用一张噪音纹理采样且偏移，取一个通道进行处理，然后添加到主纹理偏移，最后采样主纹理
+	float d = tex2D(no, uv + t).r;
+	float4 col = tex2D(main,uv+(lerp(-d, d, saturate(d)) * x);
+遮罩Mask
+	maskA>customA?0:1
+
+半兰伯特
+	dot(l, n) * 0.5 + 0.5  l,n 表示灯光方向 和 法线方向
+
+漫反射 = 灯光颜色，主纹理颜色，半兰伯特的混合
+
+启动透明Pass
+	Tags { "QUEUE" = "Transparent" "RenderType" = "Transparent" }
+	ZWrite Off
+	Blend SrcAlpha OneMinusSrcAlpha 
+
+雾效果
+	#pragma multi_compile_fog
+	UNITY_FOG_COORDS(1)
+	UNITY_TRANSFER_FOG(o,o.vertex);
+	UNITY_APPLY_FOG(i.fogCoord, col);
+	UNITY_OPAQUE_ALPHA(col.a);
+
+屏幕效果
+	GrabPass {
+		Name "BASE"//在后续的通道中可以使用给定的名字来引用这个纹理。当你在1个场景中有多个对象使用grab pass 时候，这样做会提高效率。
+		Tags { "LightMode" = "Always" }
+		"g_colorBuffer" //自定义屏幕纹理名称
+	 }
+	 sampler2D g_colorBuffer : register(s1);
+	 sampler2D _GrabTexture : register(s0);
+
+函数说明：
+	step(x, y) 返回1或0  x < y ? 1 : 0;
+
+	cross(uv, 0.25) 表现为十字	
+	dot(x,y) 点乘
+
+	smoothstep(_radius,_radius, length(_st-0.5))  绘制平滑圆形
+	smoothstep(x-0.1,x,y) - smoothstep(x,x+0.1,y) 表现为平滑水平模糊效果
+
+	abs(x) 取绝对值 配合sin 和 cos一起使用
+	frac(uv or x) 取小数部分
+	ceil 向上取整
+	floor 向下取整
+	fmod(x, 1) 取模
+	saturate(x)	把值限制在0-1
+	clamp(x,0.0,1.0);  把 x 的值限制在 0.0 到 1.0
+	min(0,x) 返回 x 和 0 中的较小值
+	max(0,x) 返回 x 和 0 中的较大值
+	pow(x,y)	次方
+
+	distance(x,y)	返回两个顶点的距离	
+	length(x)	返回一个向量的模
+	sin(x)	正弦	sin(x) * 0.5 + 0.5 限制在0-1
+	cos(x)	余弦
+	sqrt	平方根	
+	rsqrt	平方根的倒数
+	lerp(1, 0, x)	线性插值
+
+Shader内置函数
+	UnityObjectToClipPos(v) 对象转换投射空间——裁剪顶点
+	TRANSFORM_TEX(v.uv, _MainTex)   uv变换处理，贴图声明加后缀，_ST
+	UnityObjectToWorldDir(v)  	 对象转换世界方向
+	UnityObjectToWorldNormal(n ) 对象转换世界法线
+	UnityWorldSpaceLightDir(v)   世界转换灯光方向
+	clip(x) 裁剪
+	_LightColor0  灯光颜色
+	UNITY_LIGHTMODEL_AMBIENT 环境光
+	tex2Dproj(tex, uv) 	  投影纹理采样
+	_WorldSpaceCameraPos  相机世界空间位置
+	mul(v1,v2) 矩阵转换
+	tex2Dlod(tex, float4) 纹理数据细节
+	SAMPLE_TEXTURE2D_ARRAY_LOD(TEXTURE2D_ARRAY, SAMPLER) 	数组纹理细节
+
+	_MainTexArray.Sample(sampler_MainTexArray, float3(i.uv, texIndex); 数组纹理采样
+    _MainTexArray.GetDimensions(texW, texH, layers); 		数组纹理的实际尺寸，及页数
+
+	UNITY_MATRIX_VP 世界到投射的矩阵转换
+	UNITY_MATRIX_M 	模型到世界的矩阵转换
+
+Shader内置属性声明
+	2D  = "white" {}  纹理声明
+	Range(0,1)/float/int = 0	  float 声明
+	Color = (1,1,1,1) 颜色声明
+	Vector  声明4维向量
+
+Shader内置编译命令声明
+	hlsl编译：HLSLPROGRAM  和 ENDHLSL
+	cg编译：CGPROGRAM 和 ENDCG
+
+Shader内置属性特性声明
+	[Toggle(自定义名称)] 	#pragma multi_compile __ 自定义名称  //声明开关宏定义按钮
+	[Toggle]_ScaleOnCenter 	 #pragma shader_feature  _SCALEONCENTER_ON  //声明开关宏定义按钮
+	[KeywordEnum(Default,Repeat)] _WrapMode  #pragma shader_feature _WRAPMODE_DEFAULT _WRAPMODE_REPEAT  枚举大写 声明开关宏定义
+	[PerRendererData] 	预加载前面渲染的数据 ，隐藏
+	[NoScaleOffset]		隐藏贴图的缩放和偏移属性 
+	[HideInInspector] 	隐藏当前属性
+	[HDR] 	当前颜色为HDR
+	[Space(5)]  空格距离：在编辑器上的表现
+	[Header(Circle)]  添加头标题，仅英文字符
+	[IntRange] 整数滑动条
+	[Enum(UnityEngine.Rendering.BlendMode)] 枚举定义，内置混合模式
+	[Enum(UnityEngine.Rendering.CullMode)] 枚举定义，内置面剔除模式
+	[Enum(UnityEngine.Rendering.CompareFunction)] 枚举定义，内置比较函数，用于深度测试和比较
+	[Enum(UnityEngine.Rendering.StencilOp)] 枚举定义，内置印纹理模板，用于StencilOp
+	[Enum(off,0,On,1)] 枚举定义，枚举值0开始
+	[MaterialToggle] 
+
+Shader内置预加载数据
+	float4 : POSITION  		网格位置
+	float4 : COLOR	  		网格颜色
+	float2 : TEXCOORD0 		网格纹理
+	float3 : NORMAL	  		网格法线
+	float4 : BLENDWEIGHTS;	骨骼权重
+	uint4  : BLENDINDICES;	骨骼索引
+	uint id : SV_VertexID;  顶点索引 用于GPU Instancing
+
+Shader 自动合批处理-宏定义
+	//实例合批宏定义
+	#pragma multi_compile_instancing
+	#pragma instancing_options assumeuniformscaling
+
+	UNITY_VERTEX_INPUT_INSTANCE_ID  顶点输入实例ID，结构体内声明
+	UNITY_SETUP_INSTANCE_ID(i);  设置实例，在vert，frag开头声明
+    UNITY_TRANSFER_INSTANCE_ID(v, o); 顶点变化实例，在vert开头声明
+
+    //实例变量声明
+	UNITY_INSTANCING_BUFFER_START(Props)
+	    UNITY_DEFINE_INSTANCED_PROP(数据类型, 变量)
+	UNITY_INSTANCING_BUFFER_END(Props)
+
+	//获取数据实例，返回变量的类型数据
+	UNITY_ACCESS_INSTANCED_PROP(Props, 变量);
+
+	生命实例id标识
+	SV_INSTANCEID
+
+	UNITY_DECLARE_TEX2D(_MainTex);
+	UNITY_SAMPLE_TEX2D(_MainTex, float3(i.uv,0)
+
+	//纹理数组实例声明和获取
+	UNITY_DECLARE_TEX2DARRAY(_MainTexArray) 
+	UNITY_SAMPLE_TEX2DARRAY(_MainTexArray, float3(uv, texIndex));
+
+	//纹理数组声明和获取
+	TEXTURE2D_ARRAY(_MainTexArray);
+    SAMPLER(sampler_MainTexArray); 数组纹理声明
+    sampler2D _MainTex    单个文件的声明
+    float4 _MainTex_TexelSize  纹理的实际尺寸
+    float4 _MainTex_ST;    	  纹理缩放偏移--用于UV缩放
+
+Shader UI声明
+	_StencilComp ("Stencil Comparison", Float) = 8
+	_Stencil ("Stencil ID", Float) = 0
+	_StencilOp ("Stencil Operation", Float) = 0
+	_StencilWriteMask ("Stencil Write Mask", Float) = 255
+	_StencilReadMask ("Stencil Read Mask", Float) = 255
+	_ColorMask ("Color Mask", Float) = 15
+
+	Tags{"CanUseSpriteAtlas"="True"}
+	Stencil
+	{
+		Ref [_Stencil]
+		ReadMask [_StencilReadMask]
+		WriteMask [_StencilWriteMask]
+		CompFront [_StencilComp]
+		PassFront [_StencilOp]
+	}
+	ColorMask [_ColorMask]
+
+
+Shader 编辑标记
+	CustomEditor ""	//指定编辑文件夹下的C#脚本名 
+
+
+Shader 渲染标记
+	Tags{
+		"CanUseSpriteAtlas"="True" 
+		"RenderType"="Transparent"
+		"IgnoreProjector"="False"
+		"ForceNoShadowCasting"="False"
+		"Queue"="Overlay"
+		"PreviewType"="Plane"
+		"LightMode" = "Always"
+	}
+
+	Queue: Background=1000,Geometry=2000,AlphaTest=2450,Transparent=3000,Overlay=4000
+

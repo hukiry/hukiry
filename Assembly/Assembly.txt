@@ -1,0 +1,31 @@
+汇编 IDE 介绍
+1. Visual Studio
+Visual Studio是微软开发的一个功能强大的IDE，支持多种编程语言，包括汇编语言。它提供了丰富的开发工具和插件，能够有效地支持软件开发的各个环节。Visual Studio的优势在于其高级的调试工具和丰富的库资源，这些都是编写汇编代码时非常有用的。
+
+2. NASM
+NASM（Netwide Assembler）是一个流行的汇编语言编译器，同时也可以作为IDE使用。它主要面向Intel x86架构，提供了灵活和强大的编程工具。NASM的特点是其语法简洁明了，易于学习，非常适合初学者。同时，NASM广泛用于教育和研究领域。
+
+3. MASM
+MASM（Microsoft Macro Assembler）是微软开发的另一款汇编语言编译器和IDE。它专门针对Intel语法进行了优化，与Visual Studio紧密集成。MASM对于开发Windows应用程序特别有用，因为它支持Windows API和其他微软技术。
+
+4. RadASM
+RadASM是一个轻量级的汇编语言IDE，支持MASM、NASM以及其他一些汇编器。它的特点是用户界面友好，有助于提高编程效率。RadASM提供了代码高亮、项目管理等功能，适合那些需要一个简单、直观IDE的用户。
+
+5. IDA Pro
+IDA Pro不仅是一个汇编语言IDE，更是一个强大的反汇编器和调试器。它主要用于软件逆向工程，在安全研究和恶意软件分析领域尤其受欢迎。IDA Pro的功能极为强大，但其复杂性也相对较高，适合有经验的开发者使用。
+
+
+汇编教材
+https://www.cainiaoya.com/assemblylanguage/assembly-language-jiaocheng.html
+https://cankaoshouce.com/assembly/assembly-addressing-modes.html
+https://www.w3cschool.cn/assembly/assembly-number.html
+
+NASM下载地址：https://www.nasm.us/pub/nasm/releasebuilds/
+文档地址：https://www.w3ccoo.com/assembly/assembly_environment_setup.html
+详细文档：http://www.weijiyuanli.cn/_cai/cbiancheng/huibian/3294.html
+
+
+https://wkbse.com/2025/03/08/%E4%BB%8E%E9%9B%B6%E5%BC%80%E5%A7%8B%E5%AD%A6%E6%B1%87%E7%BC%96%E8%AF%AD%E8%A8%80%EF%BC%9Aassembly-language%E7%9A%84%E5%89%8D%E4%B8%96%E4%BB%8A%E7%94%9F%E4%B8%8E%E6%9C%AA%E6%9D%A5%E5%8F%91%E5%B1%95/
+在线教程：
+https://www.tutorialspoint.com/assembly_programming/index.htm
+https://www.assemblylanguagetuts.com/

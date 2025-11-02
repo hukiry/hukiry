@@ -1,0 +1,11 @@
+
+
+一个粒子转圈：
+	Simulation Speed  控制播放速度为 0.1~1.0
+	Max Particles 粒子数量设置为 1
+	Start Speed 开始速度设置为 0
+	如果有形状模块Shape，Radius 要设置为0
+		Radius 发射半径范围
+	 	Radius Thickness 0表示在切线上，大于0表示在线以内范围发射
+	 	Arc 发射弧度范围
+	 	Spread 伸展 0.0~1.0

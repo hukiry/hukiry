@@ -79,35 +79,8 @@ ContentSizeFitter 组件
 	《1》 需要延时一帧刷新才有效  
 	《2》 lua中使用需要查看 LuaCoroutine.cs
 
-UI渲染部分：
+UI渲染部分：参考spine和自己写的插件
 	预览渲染：UnityEditor.PreviewRenderUtility
-		PreviewRenderUtility.camera 		--预览相机
-		previewRenderUtility.AddSingleGO(previewGameObject); --添加预览GameObject
-
-		重载方法： OnInteractivePreviewGUI(Rect r, GUIStyle background)
-		previewRenderUtility.BeginPreview(r, background); 开始预览
-		启动预览的对象
-		PreviewRenderUtility.camera.Render();
-		关闭预览的对象
-		previewRenderUtility.EndPreview()； 结束预览
-		GUI.DrawTexture(r, previewTexture, ScaleMode.StretchToFill, false);绘制预览图
-
-		Event使用:
-			if (e.type == EventType.MouseDown && e.button == 0)
-			{
-				...
-				e.Use();
-			}
-		代码实例：
-			void OnInteractivePreviewGUI(Rect r, GUIStyle background){
-				if (Event.current.type == EventType.Repaint) { //重绘事件
-						blitCamera.targetTexture = target;
-						Graphics.DrawMesh( blitQuad, Vector3.zero, Quaternion.identity, material, 7, blitCamera );
-						blitCamera.Render();
-						blitCamera.targetTexture = null;
-				}
-			}
-
 	Canvas.willRenderCanvases 画布渲染事件委托
 	Graphic.CanvasRenderer  UI网格渲染
 
@@ -154,8 +127,11 @@ Unity特性部分
 	[ClientPrc]  	表示服务端向客户端发送的命令,在客户端执行
 
 
-加载系统字体
+加载系统资源
 	Resources.GetBuiltinResource<Font>("Arial.ttf")
+
+获取预览图
+	AssetPreview.GetAssetPreview(Object);
 
 刘海屏幕的支持：仅Unity2019.4, 2020.3，2021.3
 	Screen.cutouts 凹口周围的包围盒列表
@@ -229,6 +205,7 @@ private void ShowPickWindow()
 
 在Inspector面板，显示AssetInspector文件
 	Editor.CreateEditor(target, Type.GetType("UnityEditor.{自定义}, UnityEditor" ) );
+	EditMode.DoEditModeInspectorModeButton(EditMode.SceneViewEditMode.Collider, "Edit Bounds", PrimitiveBoundsHandle.editModeButton, this);
 
 手机振动
 	Handheld.Vibrate()
